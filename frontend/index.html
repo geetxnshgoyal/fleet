@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>FleetFox Device Inventory</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <header>
+      <h1>FleetFox Device Inventory</h1>
+      <p>Compare incoming devices with installed units and spot remaining stock.</p>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>1. Upload the latest spreadsheets</h2>
+        <p class="hint">
+          Accepts the original <code>incoming.xlsx</code> file and the exported
+          <code>installed.xls</code> file. Nothing leaves your browser.
+        </p>
+        <div class="upload-grid">
+          <label class="upload-field">
+            Incoming devices (.xlsx)
+            <input id="incomingFile" type="file" accept=".xlsx" />
+          </label>
+          <label class="upload-field">
+            Installed devices (.xls)
+            <input id="installedFile" type="file" accept=".xls,.xlsx,.csv,.html" />
+          </label>
+        </div>
+        <p id="status" class="status">Waiting for files…</p>
+      </section>
+
+      <section class="card">
+        <h2>2. Choose what to inspect</h2>
+        <div class="actions">
+          <button type="button" class="view-btn" data-target="incoming">Incoming list</button>
+          <button type="button" class="view-btn" data-target="installed">Installed summary</button>
+          <button type="button" class="view-btn primary" data-target="stock">Devices still in stock</button>
+          <button type="button" id="downloadStock" class="secondary" disabled>
+            Download stock as CSV
+          </button>
+        </div>
+      </section>
+
+      <section id="view-incoming" class="card data-view hidden">
+        <h2>Incoming devices</h2>
+        <div class="meta">
+          <span id="incomingCount">0 devices</span>
+        </div>
+        <div class="table-wrapper">
+          <table id="incomingTable"></table>
+        </div>
+      </section>
+
+      <section id="view-installed" class="card data-view hidden">
+        <h2>Installed devices</h2>
+        <div class="meta">
+          <span id="installedCount">0 devices</span>
+          <small>Showing a subset of columns for clarity.</small>
+        </div>
+        <div class="table-wrapper">
+          <table id="installedTable"></table>
+        </div>
+      </section>
+
+      <section id="view-stock" class="card data-view hidden">
+        <h2>Devices still in stock</h2>
+        <div class="meta">
+          <span id="stockCount">0 devices</span>
+        </div>
+        <div class="table-wrapper">
+          <table id="stockTable"></table>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>
+        Built for FleetFox. Data is processed locally within your browser – refresh the page to clear it.
+      </p>
+    </footer>
+  </body>
+</html>
