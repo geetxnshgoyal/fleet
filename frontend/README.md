@@ -10,7 +10,7 @@ This static web app lets you compare incoming and installed device spreadsheets 
    ```
 2. Visit `http://localhost:5173` in your browser.
 3. Upload the latest `incoming.xlsx` and `installed.xls` files using the form controls.
-4. Use the action buttons to switch views, refine the tables with the search boxes, or download the stock list as CSV.
+4. Use the action buttons to switch views, refine the tables with the search boxes, or download the stock list as CSV. Header names are auto-normalised (for example, `IMEI No` or `Vehicle #`) so minor column-label differences are okay.
 
 > You can also double-click `frontend/index.html` to open the page directly, but some browsers block local file access for uploads. A lightweight server avoids that issue.
 

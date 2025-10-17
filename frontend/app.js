@@ -15,7 +15,62 @@ const stockCountEl = document.getElementById("stockCount");
 
 const MAX_ROWS_DISPLAYED = 200;
 const STOCK_COLUMNS = ["IMEI", "Device Type", "Sim No", "Status"];
+const INCOMING_CANONICAL = ["IMEI", "Device Type", "Sim IMEI", "Sim No", "Status"];
 const INSTALLED_COLUMNS = ["IMEI", "Vehicles", "Device", "Installation"];
+
+const INCOMING_ALIASES = {
+  IMEI: ["imei", "imei no", "imei number", "device imei", "imei #"],
+  "Device Type": [
+    "device type",
+    "device",
+    "model",
+    "device model",
+    "unit type",
+    "type",
+  ],
+  "Sim IMEI": ["sim imei", "sim imei no", "sim imei number", "sim imei1"],
+  "Sim No": [
+    "sim no",
+    "sim no.",
+    "sim number",
+    "sim",
+    "mobile no",
+    "mobile number",
+    "mobile num",
+    "sim #",
+    "phone no",
+    "phone number",
+    "contact",
+  ],
+  Status: ["status", "plan", "package", "subscription", "comment"],
+};
+
+const INSTALLED_ALIASES = {
+  IMEI: ["imei", "imei no", "imei number", "device imei"],
+  Vehicles: [
+    "vehicles",
+    "vehicle",
+    "vehicle no",
+    "vehicle number",
+    "vehicle name",
+    "registration",
+    "reg no",
+    "reg number",
+    "vehicle reg no",
+    "vehicle #",
+    "vehicle id",
+  ],
+  Device: ["device", "device type", "model"],
+  Installation: [
+    "installation",
+    "installation date",
+    "install date",
+    "installed on",
+    "installation time",
+    "installation datetime",
+    "install datetime",
+  ],
+};
 
 let incomingData = [];
 let installedData = [];
@@ -209,23 +264,52 @@ async function processFiles() {
 
     if (incomingInput.files.length) {
       updateStatus(`Reading ${incomingInput.files[0].name}…`);
-      incomingData = await readWorkbook(incomingInput.files[0]);
+      const rawIncoming = await readWorkbook(incomingInput.files[0]);
+      const cleanedIncoming = sanitizeRows(rawIncoming);
+      incomingData = normalizeDataset(
+        cleanedIncoming,
+        INCOMING_ALIASES,
+        INCOMING_CANONICAL
+      );
     } else {
       incomingData = [];
     }
 
     if (installedInput.files.length) {
       updateStatus(`Reading ${installedInput.files[0].name}…`);
-      installedData = await readWorkbook(installedInput.files[0]);
+      const rawInstalled = await readWorkbook(installedInput.files[0]);
+      const cleanedInstalled = sanitizeRows(rawInstalled);
+      installedData = normalizeDataset(
+        cleanedInstalled,
+        INSTALLED_ALIASES,
+        INSTALLED_COLUMNS
+      );
     } else {
       installedData = [];
+    }
+
+    const warnings = [];
+    if (incomingData.length && !hasNonEmptyValue(incomingData, "IMEI")) {
+      warnings.push(
+        "Incoming file: IMEI column not detected. Check header spelling."
+      );
+    }
+    if (installedData.length && !hasNonEmptyValue(installedData, "IMEI")) {
+      warnings.push(
+        "Installed file: IMEI column not detected. Check header spelling."
+      );
     }
 
     if (!incomingData.length || !installedData.length) {
       computeStock();
       renderViews();
-      updateStatus("Files loaded. Select the remaining spreadsheet to enable comparisons.");
       updateCounts();
+      const message = warnings.length
+        ? `Files loaded. Select the remaining spreadsheet to enable comparisons. ${warnings.join(
+            " "
+          )}`
+        : "Files loaded. Select the remaining spreadsheet to enable comparisons.";
+      updateStatus(message, warnings.length > 0);
       downloadStockBtn.disabled = !stockData.length;
       return;
     }
@@ -234,7 +318,10 @@ async function processFiles() {
     renderViews();
     updateCounts();
     downloadStockBtn.disabled = !stockData.length;
-    updateStatus("Ready! Use the buttons below to explore the data.");
+    const readyMessage = warnings.length
+      ? `Ready! Use the buttons below to explore the data. ${warnings.join(" ")}`
+      : "Ready! Use the buttons below to explore the data.";
+    updateStatus(readyMessage, warnings.length > 0);
     showView("stock");
   } catch (error) {
     console.error(error);
@@ -263,6 +350,81 @@ function renderViews() {
   });
   renderTable(stockTableEl, stockFiltered, STOCK_COLUMNS, {
     filterQuery: filters.stock,
+  });
+}
+
+function sanitizeRows(rows) {
+  return rows.map((row) => {
+    if (!row || typeof row !== "object") {
+      return {};
+    }
+    const sanitized = {};
+    Object.entries(row).forEach(([key, value]) => {
+      if (!key) {
+        return;
+      }
+      const trimmedKey = key.trim().replace(/\s+/g, " ");
+      const processedValue =
+        typeof value === "string" ? value.trim() : value ?? "";
+      sanitized[trimmedKey] = processedValue;
+    });
+    return sanitized;
+  });
+}
+
+function normalizeDataset(rows, aliasMap, canonicalColumns) {
+  return rows.map((row) => {
+    if (!row || typeof row !== "object") {
+      return {};
+    }
+
+    const normalized = { ...row };
+    const lookup = {};
+    Object.entries(row).forEach(([key, value]) => {
+      const lowerKey = key.trim().toLowerCase().replace(/\s+/g, " ");
+      lookup[lowerKey] = value;
+    });
+
+    canonicalColumns.forEach((column) => {
+      const currentValue = normalized[column];
+      if (
+        currentValue !== undefined &&
+        currentValue !== null &&
+        String(currentValue).trim() !== ""
+      ) {
+        if (typeof currentValue === "string") {
+          normalized[column] = currentValue.trim();
+        }
+        return;
+      }
+
+      const aliases = aliasMap[column] || [];
+      const match = aliases.find((alias) => {
+        const normalizedAlias = alias.trim().toLowerCase().replace(/\s+/g, " ");
+        return normalizedAlias in lookup;
+      });
+      if (match) {
+        const normalizedAlias = match.trim().toLowerCase().replace(/\s+/g, " ");
+        const value = lookup[normalizedAlias];
+        normalized[column] =
+          typeof value === "string" ? value.trim() : value ?? "";
+      } else if (!(column in normalized)) {
+        normalized[column] = "";
+      }
+    });
+
+    return normalized;
+  });
+}
+
+function hasNonEmptyValue(rows, column) {
+  return rows.some((row) => {
+    const value = row?.[column];
+    return (
+      value !== undefined &&
+      value !== null &&
+      String(value).trim().length > 0
+    );
   });
 }
 
