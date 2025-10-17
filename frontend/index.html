@@ -49,7 +49,15 @@
       <section id="view-incoming" class="card data-view hidden">
         <h2>Incoming devices</h2>
         <div class="meta">
-          <span id="incomingCount">0 devices</span>
+          <div class="meta-info">
+            <span id="incomingCount">0 devices</span>
+          </div>
+          <input
+            type="search"
+            class="table-filter"
+            data-target="incoming"
+            placeholder="Search by IMEI, SIM, or status"
+          />
         </div>
         <div class="table-wrapper">
           <table id="incomingTable"></table>
@@ -59,8 +67,16 @@
       <section id="view-installed" class="card data-view hidden">
         <h2>Installed devices</h2>
         <div class="meta">
-          <span id="installedCount">0 devices</span>
-          <small>Showing a subset of columns for clarity.</small>
+          <div class="meta-info">
+            <span id="installedCount">0 devices</span>
+            <small>Showing a subset of columns for clarity.</small>
+          </div>
+          <input
+            type="search"
+            class="table-filter"
+            data-target="installed"
+            placeholder="Search by IMEI, vehicle, or device"
+          />
         </div>
         <div class="table-wrapper">
           <table id="installedTable"></table>
@@ -70,7 +86,15 @@
       <section id="view-stock" class="card data-view hidden">
         <h2>Devices still in stock</h2>
         <div class="meta">
-          <span id="stockCount">0 devices</span>
+          <div class="meta-info">
+            <span id="stockCount">0 devices</span>
+          </div>
+          <input
+            type="search"
+            class="table-filter"
+            data-target="stock"
+            placeholder="Filter stock list"
+          />
         </div>
         <div class="table-wrapper">
           <table id="stockTable"></table>
