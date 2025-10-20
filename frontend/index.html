@@ -40,6 +40,7 @@
           <button type="button" class="view-btn" data-target="incoming">Incoming list</button>
           <button type="button" class="view-btn" data-target="installed">Installed summary</button>
           <button type="button" class="view-btn primary" data-target="stock">Devices still in stock</button>
+          <button type="button" class="view-btn" data-target="history">Saved stock reports</button>
           <button type="button" id="downloadStock" class="secondary" disabled>
             Download stock as CSV
           </button>
@@ -98,6 +99,24 @@
         </div>
         <div class="table-wrapper">
           <table id="stockTable"></table>
+        </div>
+      </section>
+
+      <section id="view-history" class="card data-view hidden">
+        <h2>Saved stock reports</h2>
+        <div class="meta">
+          <div class="meta-info">
+            <span id="historyCount">No saved reports</span>
+            <small>Snapshots stay in this browser until you clear them.</small>
+          </div>
+          <button type="button" id="clearHistory" class="secondary">Clear saved reports</button>
+        </div>
+        <div id="historyList" class="history-list"></div>
+        <div id="historyTableWrapper" class="history-table hidden">
+          <p id="historyTitle" class="history-title"></p>
+          <div class="table-wrapper">
+            <table id="historyTable"></table>
+          </div>
         </div>
       </section>
     </main>

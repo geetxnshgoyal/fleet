@@ -136,6 +136,10 @@ button:disabled {
   box-shadow: none;
 }
 
+.hidden {
+  display: none !important;
+}
+
 .primary {
   background: #0f62fe;
   color: #ffffff;
@@ -240,4 +244,61 @@ code {
 small {
   font-weight: 400;
   color: #66788a;
+}
+
+.history-list {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.history-empty {
+  margin: 1.5rem 0;
+  color: #66788a;
+  font-style: italic;
+}
+
+.history-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid rgba(15, 98, 254, 0.15);
+  border-radius: 12px;
+  background: rgba(15, 98, 254, 0.06);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.history-item.active {
+  border-color: rgba(15, 98, 254, 0.45);
+  background: rgba(15, 98, 254, 0.12);
+}
+
+.history-item__summary h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.history-item__summary p {
+  margin: 0.25rem 0 0;
+  color: #425466;
+  font-weight: 500;
+}
+
+.history-item__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.history-title {
+  margin: 0;
+  font-weight: 600;
+  color: #0b1f33;
+}
+
+.history-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }

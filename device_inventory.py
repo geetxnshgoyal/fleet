@@ -7,19 +7,25 @@ The tool reads two spreadsheets in the current directory:
 
 It then offers menu options to inspect the raw data or list devices that
 are still in stock (present in the incoming sheet but missing from the
-installed sheet).
+installed sheet). The script also persists stock snapshots locally so it can
+flag previously saved devices that later appear in a new installed export.
 """
 
 from __future__ import annotations
 
+import json
 import sys
 import zipfile
+from datetime import datetime
 from html.parser import HTMLParser
-from typing import Dict, Iterable, List, Sequence
+from pathlib import Path
+from typing import Any, Dict, List, Sequence, Tuple
 from xml.etree import ElementTree as ET
 
 
 NS = {"main": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
+STATE_PATH = Path(".fleet_stock_state.json")
+STOCK_COLUMNS = ["IMEI", "Device Type", "Sim No", "Status"]
 
 
 def load_shared_strings(zf: zipfile.ZipFile) -> List[str]:
@@ -163,10 +169,130 @@ def format_table(rows: Sequence[Dict[str, str]], columns: Sequence[str], limit: 
     return "\n".join(lines)
 
 
-def compute_stock(incoming: Sequence[Dict[str, str]], installed: Sequence[Dict[str, str]]) -> List[Dict[str, str]]:
-    """Return incoming device rows whose IMEI does not appear in installed data."""
-    installed_imeis = {row.get("IMEI") for row in installed if row.get("IMEI")}
-    return [row for row in incoming if row.get("IMEI") and row["IMEI"] not in installed_imeis]
+def sanitize_value(value: Any) -> str:
+    """Normalize cell values into stripped strings."""
+    if value is None:
+        return ""
+    return str(value).strip()
+
+
+def canonical_stock_row(row: Dict[str, Any]) -> Dict[str, str] | None:
+    """Extract the core stock columns from an arbitrary row."""
+    normalized: Dict[str, str] = {}
+    for key, value in row.items():
+        if not isinstance(key, str):
+            continue
+        key_normalized = key.strip().lower()
+        if not key_normalized:
+            continue
+        normalized[key_normalized] = sanitize_value(value)
+
+    imei = normalized.get("imei", "")
+    if not imei:
+        return None
+
+    def pick(*candidates: str) -> str:
+        for candidate in candidates:
+            candidate_lower = candidate.strip().lower()
+            value = normalized.get(candidate_lower, "")
+            if value:
+                return value
+        return ""
+
+    return {
+        "IMEI": imei,
+        "Device Type": pick("device type", "device", "model", "device model", "unit type", "type"),
+        "Sim No": pick(
+            "sim no",
+            "sim",
+            "sim number",
+            "mobile no",
+            "mobile number",
+            "phone no",
+            "phone",
+        ),
+        "Status": pick("status", "plan", "package", "subscription", "comment"),
+    }
+
+
+def load_state(path: Path = STATE_PATH) -> Dict[str, Any]:
+    """Load persisted stock data if available."""
+    try:
+        raw = path.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        return {}
+    except OSError as exc:  # pragma: no cover - environment specific
+        print(f"Warning: unable to read {path}: {exc}", file=sys.stderr)
+        return {}
+
+    try:
+        state = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        print(f"Warning: ignoring corrupted state file {path}: {exc}", file=sys.stderr)
+        return {}
+
+    if not isinstance(state, dict):
+        return {}
+    return state
+
+
+def save_state(state: Dict[str, Any], path: Path = STATE_PATH) -> None:
+    """Persist stock data for future runs."""
+    try:
+        path.write_text(json.dumps(state, indent=2, sort_keys=True), encoding="utf-8")
+    except OSError as exc:  # pragma: no cover - environment specific
+        print(f"Warning: unable to write {path}: {exc}", file=sys.stderr)
+
+
+def reconcile_stock(
+    incoming: Sequence[Dict[str, Any]],
+    installed: Sequence[Dict[str, Any]],
+    previous_stock: Sequence[Dict[str, Any]],
+) -> Tuple[List[Dict[str, str]], List[Dict[str, str]], List[Dict[str, str]]]:
+    """Combine historical stock with the latest files and report changes."""
+    stock_by_imei: Dict[str, Dict[str, str]] = {}
+    previous_stock_map: Dict[str, Dict[str, str]] = {}
+    for row in previous_stock:
+        canonical = canonical_stock_row(row) if row else None
+        if canonical:
+            stock_by_imei[canonical["IMEI"]] = canonical
+            previous_stock_map[canonical["IMEI"]] = canonical
+
+    previous_stock_imeis = set(previous_stock_map)
+
+    added_from_incoming: List[Dict[str, str]] = []
+    newly_added_imeis: set[str] = set()
+    for row in incoming:
+        canonical = canonical_stock_row(row)
+        if not canonical:
+            continue
+        imei = canonical["IMEI"]
+        if imei not in stock_by_imei:
+            if imei not in newly_added_imeis:
+                added_from_incoming.append(canonical)
+                newly_added_imeis.add(imei)
+        stock_by_imei[imei] = canonical
+
+    consumed_from_stock: List[Dict[str, str]] = []
+    installed_imeis: set[str] = set()
+    for row in installed:
+        canonical = canonical_stock_row(row)
+        if not canonical:
+            continue
+        imei = canonical["IMEI"]
+        installed_imeis.add(imei)
+        if imei in stock_by_imei:
+            if imei in previous_stock_imeis:
+                consumed_from_stock.append(previous_stock_map.get(imei, stock_by_imei[imei]))
+            stock_by_imei.pop(imei, None)
+
+    if installed_imeis:
+        added_from_incoming = [
+            row for row in added_from_incoming if row["IMEI"] not in installed_imeis
+        ]
+
+    remaining_stock = sorted(stock_by_imei.values(), key=lambda item: item["IMEI"])
+    return remaining_stock, consumed_from_stock, added_from_incoming
 
 
 def menu_loop(incoming_path: str, installed_path: str) -> None:
@@ -189,32 +315,68 @@ def menu_loop(incoming_path: str, installed_path: str) -> None:
         print(f"Failed to read {installed_path!r}: {exc}")
         return
 
-    stock = compute_stock(incoming, installed)
-    columns = ["IMEI", "Device Type", "Sim No", "Status"]
+    state = load_state()
+    raw_previous_stock = state.get("pending_stock") if isinstance(state, dict) else []
+    if not isinstance(raw_previous_stock, list):
+        raw_previous_stock = []
+
+    stock, consumed_stock, added_stock = reconcile_stock(incoming, installed, raw_previous_stock)
+
+    state["pending_stock"] = stock
+    state["last_run"] = {
+        "incoming_path": incoming_path,
+        "installed_path": installed_path,
+        "timestamp": datetime.utcnow().isoformat(timespec="seconds") + "Z",
+        "consumed": [row["IMEI"] for row in consumed_stock],
+        "added": [row["IMEI"] for row in added_stock],
+    }
+    save_state(state)
+
+    print()
+    if consumed_stock:
+        print(
+            f"{len(consumed_stock)} device(s) from previous stock now appear in the installed sheet."
+        )
+    else:
+        print("No devices from the previously saved stock were marked as installed.")
+    if added_stock:
+        print(f"{len(added_stock)} device(s) from the incoming sheet were added to stock.")
+    print(f"Current stock count: {len(stock)} device(s).")
 
     while True:
         print("\nSelect an option:")
         print("  1. Show incoming device list")
         print("  2. Show installed device summary")
         print("  3. Show devices still in stock")
-        print("  4. Quit")
-        choice = input("Choice (1-4): ").strip()
+        print("  4. Show stock used since last run")
+        print("  5. Quit")
+        choice = input("Choice (1-5): ").strip()
 
         if choice == "1":
             print(f"\nIncoming devices: {len(incoming)} found.")
-            print(format_table(incoming, columns))
+            print(format_table(incoming, STOCK_COLUMNS))
         elif choice == "2":
             print(f"\nInstalled devices: {len(installed)} found.")
             summary_columns = ["IMEI", "Vehicles", "Device", "Installation"]
             print(format_table(installed, summary_columns, limit=10))
         elif choice == "3":
             print(f"\nDevices still in stock: {len(stock)}")
-            print(format_table(stock, columns))
-        elif choice == "4" or choice.lower() in {"q", "quit", "exit"}:
+            if added_stock:
+                print(f"Added from latest incoming sheet: {len(added_stock)}")
+            if consumed_stock:
+                print(f"Consumed since last run: {len(consumed_stock)}")
+            print(format_table(stock, STOCK_COLUMNS))
+        elif choice == "4":
+            if consumed_stock:
+                print(f"\nPreviously saved stock now installed: {len(consumed_stock)}")
+                print(format_table(consumed_stock, STOCK_COLUMNS, limit=20))
+            else:
+                print("\nNo devices from previous stock were installed since the last update.")
+        elif choice == "5" or choice.lower() in {"q", "quit", "exit"}:
             print("Goodbye!")
             return
         else:
-            print("Invalid choice. Enter a number between 1 and 4.")
+            print("Invalid choice. Enter a number between 1 and 5.")
 
 
 def main(argv: Sequence[str]) -> int:
@@ -231,4 +393,3 @@ def main(argv: Sequence[str]) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main(sys.argv))
-

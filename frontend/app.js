@@ -12,11 +12,19 @@ const filterInputs = document.querySelectorAll(".table-filter");
 const incomingCountEl = document.getElementById("incomingCount");
 const installedCountEl = document.getElementById("installedCount");
 const stockCountEl = document.getElementById("stockCount");
+const historyListEl = document.getElementById("historyList");
+const historyTableEl = document.getElementById("historyTable");
+const historyTableWrapper = document.getElementById("historyTableWrapper");
+const historyTitleEl = document.getElementById("historyTitle");
+const historyCountEl = document.getElementById("historyCount");
+const clearHistoryBtn = document.getElementById("clearHistory");
 
 const MAX_ROWS_DISPLAYED = 200;
 const STOCK_COLUMNS = ["IMEI", "Device Type", "Sim No", "Status"];
 const INCOMING_CANONICAL = ["IMEI", "Device Type", "Sim IMEI", "Sim No", "Status"];
 const INSTALLED_COLUMNS = ["IMEI", "Vehicles", "Device", "Installation"];
+const HISTORY_STORAGE_KEY = "fleetfox:stockHistory";
+const MAX_HISTORY_ENTRIES = 12;
 
 const INCOMING_ALIASES = {
   IMEI: ["imei", "imei no", "imei number", "device imei", "imei #"],
@@ -78,6 +86,13 @@ let stockData = [];
 let incomingFiltered = [];
 let installedFiltered = [];
 let stockFiltered = [];
+let stockHistory = [];
+let activeHistoryId = null;
+let currentIncomingSignature = null;
+let currentInstalledSignature = null;
+let currentIncomingLabel = "";
+let currentInstalledLabel = "";
+let lastArchivedSignature = null;
 
 const filters = {
   incoming: "",
@@ -172,6 +187,264 @@ function pluralize(count) {
   return `${count} devices`;
 }
 
+function loadHistory() {
+  try {
+    if (!("localStorage" in window)) {
+      return;
+    }
+    const stored = window.localStorage.getItem(HISTORY_STORAGE_KEY);
+    if (!stored) {
+      return;
+    }
+    const parsed = JSON.parse(stored);
+    if (!Array.isArray(parsed)) {
+      return;
+    }
+    stockHistory = parsed
+      .filter(
+        (entry) =>
+          entry &&
+          typeof entry === "object" &&
+          Array.isArray(entry.rows) &&
+          entry.id
+      )
+      .map((entry) => {
+        const normalizedRows = entry.rows.map((row) => {
+          const snapshotRow = {};
+          STOCK_COLUMNS.forEach((column) => {
+            snapshotRow[column] = row?.[column] ?? "";
+          });
+          return snapshotRow;
+        });
+        return {
+          id: entry.id,
+          timestamp: entry.timestamp || "",
+          incomingFile: entry.incomingFile || "",
+          installedFile: entry.installedFile || "",
+          rows: normalizedRows,
+          rowCount: Number(entry.rowCount) || normalizedRows.length,
+        };
+      });
+    activeHistoryId =
+      stockHistory.length && stockHistory[0]?.id
+        ? stockHistory[0].id
+        : null;
+  } catch (error) {
+    console.warn("Failed to load saved stock reports:", error);
+    stockHistory = [];
+    activeHistoryId = null;
+  }
+}
+
+function persistHistory() {
+  try {
+    if (!("localStorage" in window)) {
+      return;
+    }
+    window.localStorage.setItem(
+      HISTORY_STORAGE_KEY,
+      JSON.stringify(stockHistory)
+    );
+  } catch (error) {
+    console.warn("Failed to persist stock history:", error);
+  }
+}
+
+function formatTimestamp(isoString) {
+  if (!isoString) {
+    return "Unknown time";
+  }
+  const date = new Date(isoString);
+  if (Number.isNaN(date.getTime())) {
+    return "Unknown time";
+  }
+  return date.toLocaleString(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
+}
+
+function formatHistoryCount(count) {
+  if (!count) {
+    return "No saved reports";
+  }
+  if (count === 1) {
+    return "1 saved report";
+  }
+  return `${count} saved reports`;
+}
+
+function extractStockSnapshotRow(row) {
+  const snapshotRow = {};
+  STOCK_COLUMNS.forEach((column) => {
+    snapshotRow[column] = row?.[column] ?? "";
+  });
+  return snapshotRow;
+}
+
+function archiveCurrentStock() {
+  if (
+    !stockData.length ||
+    !incomingData.length ||
+    !installedData.length
+  ) {
+    return;
+  }
+
+  const signature = `${currentIncomingSignature || "none"}|${currentInstalledSignature || "none"}`;
+  if (signature === lastArchivedSignature) {
+    return;
+  }
+
+  const snapshot = {
+    id: `snapshot-${Date.now()}`,
+    timestamp: new Date().toISOString(),
+    incomingFile: currentIncomingLabel,
+    installedFile: currentInstalledLabel,
+    rows: stockData.map(extractStockSnapshotRow),
+    rowCount: stockData.length,
+  };
+
+  stockHistory = [snapshot, ...stockHistory].slice(0, MAX_HISTORY_ENTRIES);
+  activeHistoryId = snapshot.id;
+  lastArchivedSignature = signature;
+  persistHistory();
+  renderHistory();
+}
+
+function renderHistory() {
+  if (!historyListEl || !historyCountEl) {
+    return;
+  }
+
+  historyCountEl.textContent = formatHistoryCount(stockHistory.length);
+
+  if (!stockHistory.length) {
+    historyListEl.innerHTML =
+      '<p class="history-empty">Saved reports will appear here after you upload new files.</p>';
+    if (historyTableWrapper) {
+      historyTableWrapper.classList.add("hidden");
+    }
+    if (historyTitleEl) {
+      historyTitleEl.textContent = "";
+    }
+    return;
+  }
+
+  if (
+    !activeHistoryId ||
+    !stockHistory.some((entry) => entry.id === activeHistoryId)
+  ) {
+    activeHistoryId = stockHistory[0].id;
+  }
+
+  historyListEl.innerHTML = stockHistory
+    .map((snapshot) => {
+      const isActive = snapshot.id === activeHistoryId;
+      const timestamp = formatTimestamp(snapshot.timestamp);
+      const fileSummary = [snapshot.incomingFile, snapshot.installedFile]
+        .filter(Boolean)
+        .map((name) => escapeHtml(name))
+        .join(" &middot; ");
+      const countLabel = pluralize(snapshot.rowCount || snapshot.rows.length);
+      return `
+        <article class="history-item${isActive ? " active" : ""}">
+          <div class="history-item__summary">
+            <h3>${escapeHtml(timestamp)}</h3>
+            <p>${escapeHtml(countLabel)}${fileSummary ? ` · ${fileSummary}` : ""}</p>
+          </div>
+          <div class="history-item__actions">
+            <button type="button" class="secondary" data-action="view" data-history-id="${escapeHtml(snapshot.id)}">
+              View
+            </button>
+            <button type="button" data-action="download" data-history-id="${escapeHtml(snapshot.id)}">
+              Download CSV
+            </button>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+
+  renderHistoryTable();
+}
+
+function renderHistoryTable() {
+  if (!historyTableWrapper || !historyTableEl) {
+    return;
+  }
+
+  if (!stockHistory.length || !activeHistoryId) {
+    historyTableWrapper.classList.add("hidden");
+    historyTableEl.innerHTML = "";
+    if (historyTitleEl) {
+      historyTitleEl.textContent = "";
+    }
+    return;
+  }
+
+  const snapshot = stockHistory.find((entry) => entry.id === activeHistoryId);
+  if (!snapshot) {
+    historyTableWrapper.classList.add("hidden");
+    historyTableEl.innerHTML = "";
+    if (historyTitleEl) {
+      historyTitleEl.textContent = "";
+    }
+    return;
+  }
+
+  historyTableWrapper.classList.remove("hidden");
+  renderTable(historyTableEl, snapshot.rows, STOCK_COLUMNS);
+  if (historyTitleEl) {
+    const timestamp = formatTimestamp(snapshot.timestamp);
+    const countLabel = pluralize(snapshot.rowCount || snapshot.rows.length);
+    const fileSummary = [snapshot.incomingFile, snapshot.installedFile]
+      .filter(Boolean)
+      .join(" · ");
+    const parts = [`Saved ${timestamp}`, countLabel];
+    if (fileSummary) {
+      parts.push(fileSummary);
+    }
+    historyTitleEl.textContent = parts.join(" · ");
+  }
+}
+
+function downloadHistorySnapshot(snapshot) {
+  if (!snapshot || !snapshot.rows || !snapshot.rows.length) {
+    return;
+  }
+  const csv = toCSV(snapshot.rows, STOCK_COLUMNS);
+  const timestamp = snapshot.timestamp
+    ? snapshot.timestamp.slice(0, 10)
+    : new Date().toISOString().slice(0, 10);
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = `fleetfox-stock-${timestamp}-saved.csv`;
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+  URL.revokeObjectURL(url);
+}
+
+function clearHistory() {
+  if (!stockHistory.length) {
+    return;
+  }
+  const shouldClear = window.confirm(
+    "Clear all saved stock reports from this browser?"
+  );
+  if (!shouldClear) {
+    return;
+  }
+  stockHistory = [];
+  activeHistoryId = null;
+  lastArchivedSignature = null;
+  persistHistory();
+  renderHistory();
+}
+
 function computeStock() {
   const installedIMEIs = new Set(
     installedData
@@ -251,20 +524,43 @@ async function readWorkbook(file) {
 
 async function processFiles() {
   try {
-    if (!incomingInput.files.length && !installedInput.files.length) {
+    const newIncomingFile = incomingInput.files[0] || null;
+    const newInstalledFile = installedInput.files[0] || null;
+    const newIncomingSignature = newIncomingFile
+      ? `${newIncomingFile.name}:${newIncomingFile.lastModified}`
+      : null;
+    const newInstalledSignature = newInstalledFile
+      ? `${newInstalledFile.name}:${newInstalledFile.lastModified}`
+      : null;
+    const incomingChanged =
+      newIncomingSignature !== currentIncomingSignature;
+    const installedChanged =
+      newInstalledSignature !== currentInstalledSignature;
+
+    if (incomingChanged || installedChanged) {
+      archiveCurrentStock();
+    }
+
+    if (!newIncomingFile && !newInstalledFile) {
       incomingData = [];
       installedData = [];
       stockData = [];
+      currentIncomingSignature = null;
+      currentInstalledSignature = null;
+      currentIncomingLabel = "";
+      currentInstalledLabel = "";
+      lastArchivedSignature = null;
       renderViews();
       updateStatus("Waiting for files…", false);
       updateCounts();
       downloadStockBtn.disabled = true;
+      renderHistory();
       return;
     }
 
-    if (incomingInput.files.length) {
-      updateStatus(`Reading ${incomingInput.files[0].name}…`);
-      const rawIncoming = await readWorkbook(incomingInput.files[0]);
+    if (newIncomingFile) {
+      updateStatus(`Reading ${newIncomingFile.name}…`);
+      const rawIncoming = await readWorkbook(newIncomingFile);
       const cleanedIncoming = sanitizeRows(rawIncoming);
       incomingData = normalizeDataset(
         cleanedIncoming,
@@ -275,9 +571,9 @@ async function processFiles() {
       incomingData = [];
     }
 
-    if (installedInput.files.length) {
-      updateStatus(`Reading ${installedInput.files[0].name}…`);
-      const rawInstalled = await readWorkbook(installedInput.files[0]);
+    if (newInstalledFile) {
+      updateStatus(`Reading ${newInstalledFile.name}…`);
+      const rawInstalled = await readWorkbook(newInstalledFile);
       const cleanedInstalled = sanitizeRows(rawInstalled);
       installedData = normalizeDataset(
         cleanedInstalled,
@@ -300,28 +596,32 @@ async function processFiles() {
       );
     }
 
+    computeStock();
+    renderViews();
+    updateCounts();
+    downloadStockBtn.disabled = !stockData.length;
+
+    currentIncomingSignature = newIncomingSignature;
+    currentInstalledSignature = newInstalledSignature;
+    currentIncomingLabel = newIncomingFile ? newIncomingFile.name : "";
+    currentInstalledLabel = newInstalledFile ? newInstalledFile.name : "";
+
     if (!incomingData.length || !installedData.length) {
-      computeStock();
-      renderViews();
-      updateCounts();
       const message = warnings.length
         ? `Files loaded. Select the remaining spreadsheet to enable comparisons. ${warnings.join(
             " "
           )}`
         : "Files loaded. Select the remaining spreadsheet to enable comparisons.";
       updateStatus(message, warnings.length > 0);
-      downloadStockBtn.disabled = !stockData.length;
+      renderHistory();
       return;
     }
 
-    computeStock();
-    renderViews();
-    updateCounts();
-    downloadStockBtn.disabled = !stockData.length;
     const readyMessage = warnings.length
       ? `Ready! Use the buttons below to explore the data. ${warnings.join(" ")}`
       : "Ready! Use the buttons below to explore the data.";
     updateStatus(readyMessage, warnings.length > 0);
+    renderHistory();
     showView("stock");
   } catch (error) {
     console.error(error);
@@ -453,6 +753,40 @@ filterInputs.forEach((input) => {
     updateCounts();
   });
 });
+
+if (historyListEl) {
+  historyListEl.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-action]");
+    if (!button) {
+      return;
+    }
+    const action = button.dataset.action;
+    const snapshotId = button.dataset.historyId;
+    if (!action || !snapshotId) {
+      return;
+    }
+    const snapshot = stockHistory.find((entry) => entry.id === snapshotId);
+    if (!snapshot) {
+      return;
+    }
+    if (action === "view") {
+      activeHistoryId = snapshotId;
+      renderHistory();
+      showView("history");
+    } else if (action === "download") {
+      downloadHistorySnapshot(snapshot);
+    }
+  });
+}
+
+if (clearHistoryBtn) {
+  clearHistoryBtn.addEventListener("click", () => {
+    clearHistory();
+  });
+}
+
+loadHistory();
+renderHistory();
 
 // Initialize UI state.
 renderViews();
