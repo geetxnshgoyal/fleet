@@ -18,6 +18,17 @@ const historyTableWrapper = document.getElementById("historyTableWrapper");
 const historyTitleEl = document.getElementById("historyTitle");
 const historyCountEl = document.getElementById("historyCount");
 const clearHistoryBtn = document.getElementById("clearHistory");
+const sectionTabs = document.querySelectorAll(".tab-btn");
+const sectionPanels = document.querySelectorAll("[data-section]");
+const downloadTableEl = document.getElementById("downloadTable");
+const downloadSearchInput = document.getElementById("downloadSearch");
+const downloadCountEl = document.getElementById("downloadCount");
+const downloadCopyBtn = document.getElementById("downloadCopy");
+const downloadExcelBtn = document.getElementById("downloadExcel");
+const downloadCsvBtn = document.getElementById("downloadCsv");
+const downloadPdfBtn = document.getElementById("downloadPdf");
+const downloadPrintBtn = document.getElementById("downloadPrint");
+const downloadClearBtn = document.getElementById("downloadClear");
 
 const MAX_ROWS_DISPLAYED = 200;
 const STOCK_COLUMNS = ["IMEI", "Device Type", "Sim No", "Status"];
@@ -25,6 +36,134 @@ const INCOMING_CANONICAL = ["IMEI", "Device Type", "Sim IMEI", "Sim No", "Status
 const INSTALLED_COLUMNS = ["IMEI", "Vehicles", "Device", "Installation"];
 const HISTORY_STORAGE_KEY = "fleetfox:stockHistory";
 const MAX_HISTORY_ENTRIES = 12;
+const DOWNLOAD_COLUMNS = [
+  "S.No",
+  "Customer Name",
+  "Device Imei",
+  "Iccid Number",
+  "Created Date",
+  "Created By",
+  "Action",
+];
+
+const DOWNLOAD_SAMPLE_ROWS = [
+
+  {
+    "S.No": 1,
+    "Customer Name": "Sample Customer",
+    "Device Imei": "000000000000000",
+    "Iccid Number": "0000000000000000000",
+    "Created Date": "01-01-2025 10:00:00",
+    "Created By": "Fitment",
+  },
+];
+
+const CERTIFICATES_STORAGE_KEY = "fleetfox:savedCertificates";
+let savedCertificates = [];
+
+const CERTIFICATE_COMPANY = {
+  name: "YAAR IT SOLUTIONS",
+  address: [
+    "SHOP No. 70, Comercial market",
+    "Hanumangarh Junction - 335512",
+    "GSTIN - 08AGQPG4963Q1ZG",
+  ],
+  email: "info.fleetfox@gmail.com",
+};
+
+const CERTIFICATE_SAMPLE = {
+  ownerName: "ARIHANT ENTERPRISES",
+  vehicleNumber: "PB03BH8685",
+  engineNumber: "B6.7B6A250D02112L64179609",
+  chassisNumber: "MAT828022M3N26611",
+  rtoDistrict: "HANUMANGARH",
+  rtoState: "RAJASTHAN",
+  deviceImei: "358980101880954",
+  deviceModel: "We Track 140",
+  vehicleType: "TRUCK",
+  vehicleModel: "4018",
+  manufacturingCompany: "Tata Motors",
+  vehicleManufacturingDate: "2023-11-30",
+  registrationDate: "2024-01-15",
+  installationDate: "2024-02-10",
+  fitnessDate: "2026-02-10",
+  fitmentValidUpto: "2025-12-31",
+  invoiceNumber: "INV-140-2024",
+  invoiceDate: "2024-01-12",
+  numberOfSos: "4",
+  esimValidity: "2025-12-31",
+  vtldNumber: "VTL-9981",
+  vtldModel: "We Track 140",
+  operator1: "JIO",
+  operator2: "AIRTEL",
+  esim1: "8912345678901234567",
+  esim2: "8912345678901234568",
+  customerName: "Mark Transport",
+  customerAddress: "Near bus stand, Hanumangarh",
+  dealerName: "YAAR IT SOLUTIONS",
+  dealerAddress: "SHOP No. 70, Comercial market, Hanumangarh",
+};
+
+const certificateForm = document.getElementById("certificateForm");
+const generateCertificateBtn = document.getElementById("generateCertificate");
+const fillSampleCertificateBtn = document.getElementById("fillSampleCertificate");
+const saveCertificateBtn = document.getElementById("saveCertificate");
+const certificatePreviewCard = document.getElementById("certificatePreviewCard");
+const certificatePreviewEl = document.getElementById("certificatePreview");
+const certificateStatusEl = document.getElementById("certificateStatus");
+const certificateQrEl = document.getElementById("certificateQr");
+const printCertificateBtn = document.getElementById("printCertificate");
+
+const certificatePreviewFields = {
+  deviceModel: document.getElementById("previewDeviceModel"),
+  rtoAddress: document.getElementById("previewRtoAddress"),
+  fitmentDate: document.getElementById("previewFitmentDate"),
+  fitmentValidTill: document.getElementById("previewFitmentValidTill"),
+  vehicleNo: document.getElementById("previewVehicleNo"),
+  vehicleType: document.getElementById("previewVehicleType"),
+  chassis: document.getElementById("previewChassis"),
+  engine: document.getElementById("previewEngine"),
+  mfgCompany: document.getElementById("previewMfgCompany"),
+  regDate: document.getElementById("previewRegDate"),
+  vehicleModel: document.getElementById("previewVehicleModel"),
+  fitnessDate: document.getElementById("previewFitnessDate"),
+  mfgYear: document.getElementById("previewMfgYear"),
+  ownerName: document.getElementById("previewOwnerName"),
+  ownerAddress: document.getElementById("previewOwnerAddress"),
+  dealerName: document.getElementById("previewDealerName"),
+  dealerAddress: document.getElementById("previewDealerAddress"),
+  sim1: document.getElementById("previewSim1"),
+  sim2: document.getElementById("previewSim2"),
+  vtsModel: document.getElementById("previewVtsModel"),
+  deviceImei: document.getElementById("previewDeviceImei"),
+  uniqueId: document.getElementById("previewUniqueId"),
+  iccid: document.getElementById("previewIccid"),
+  invoiceDate: document.getElementById("previewInvoiceDate"),
+  invoiceNo: document.getElementById("previewInvoiceNo"),
+  sos: document.getElementById("previewSos"),
+  fitmentValid: document.getElementById("previewFitmentValid"),
+  ackDate: document.getElementById("previewAckDate"),
+  ackCustomer: document.getElementById("previewAckCustomer"),
+  ackTime: document.getElementById("previewAckTime"),
+  ackDl: document.getElementById("previewAckDl"),
+  ackPlace: document.getElementById("previewAckPlace"),
+  ackMobile: document.getElementById("previewAckMobile"),
+  fitmentImage1: document.getElementById("previewFitmentImage1"),
+  fitmentImage2: document.getElementById("previewFitmentImage2"),
+  fitmentImage3: document.getElementById("previewFitmentImage3"),
+};
+
+const fitmentImageInputs = [
+  document.getElementById("fitmentImage1"),
+  document.getElementById("fitmentImage2"),
+  document.getElementById("fitmentImage3"),
+];
+
+const fitmentImageData = {
+  1: "",
+  2: "",
+  3: "",
+};
 
 const INCOMING_ALIASES = {
   IMEI: ["imei", "imei no", "imei number", "device imei", "imei #"],
@@ -99,6 +238,485 @@ const filters = {
   installed: "",
   stock: "",
 };
+
+function loadSavedCertificates() {
+  try {
+    if (!("localStorage" in window)) {
+      savedCertificates = [];
+      return;
+    }
+    const stored = window.localStorage.getItem(CERTIFICATES_STORAGE_KEY);
+    if (!stored) {
+      savedCertificates = [];
+      return;
+    }
+    const parsed = JSON.parse(stored);
+    if (Array.isArray(parsed)) {
+      savedCertificates = parsed;
+    } else {
+      savedCertificates = [];
+    }
+  } catch (error) {
+    console.warn("Failed to load saved certificates", error);
+    savedCertificates = [];
+  }
+}
+
+function persistSavedCertificates() {
+  try {
+    if (!("localStorage" in window)) {
+      return;
+    }
+    window.localStorage.setItem(
+      CERTIFICATES_STORAGE_KEY,
+      JSON.stringify(savedCertificates)
+    );
+  } catch (error) {
+    console.warn("Failed to persist certificates", error);
+  }
+}
+
+function switchSection(sectionName) {
+  if (!sectionName) {
+    return;
+  }
+  sectionPanels.forEach((panel) => {
+    const isTarget = panel.dataset.section === sectionName;
+    panel.classList.toggle("hidden", !isTarget);
+  });
+  sectionTabs.forEach((tab) => {
+    const isActive = tab.dataset.sectionTarget === sectionName;
+    tab.classList.toggle("active", isActive);
+  });
+}
+
+function showCertificateStatus(message, isError = false) {
+  if (!certificateStatusEl) {
+    return;
+  }
+  certificateStatusEl.textContent = message;
+  certificateStatusEl.classList.toggle("error", isError);
+  certificateStatusEl.classList.remove("hidden");
+}
+
+function renderDownloadTable(rows) {
+  if (!downloadTableEl) {
+    return;
+  }
+  if (!rows.length) {
+    downloadTableEl.querySelector("tbody").innerHTML =
+      `<tr><td class="empty" colspan="${DOWNLOAD_COLUMNS.length}">No certificates yet. Submit one to see it here.</td></tr>`;
+    if (downloadCountEl) {
+      downloadCountEl.textContent = "No certificates";
+    }
+    return;
+  }
+
+  const bodyHtml = rows
+    .map((row) => {
+      const cells = DOWNLOAD_COLUMNS.map((col) => {
+        if (col === "Action") {
+          return '<button class="secondary download-print-row" data-cert-id="' + escapeHtml(row.id || "") + '">Print</button>';
+        }
+        return escapeHtml(row[col] ?? "");
+      })
+        .map((cell, idx) => (idx === DOWNLOAD_COLUMNS.length - 1 ? `<td class="action-cell">${cell}</td>` : `<td>${cell}</td>`))
+        .join("");
+      return `<tr data-cert-id="${escapeHtml(row.id || "")}">${cells}</tr>`;
+    })
+    .join("");
+
+  downloadTableEl.querySelector("tbody").innerHTML = bodyHtml;
+  if (downloadCountEl) {
+    downloadCountEl.textContent = `${rows.length} certificate(s)`;
+  }
+}
+
+function filterDownloadRows(query) {
+  const normalized = (query || "").trim().toLowerCase();
+  const rows = buildDownloadRows();
+  if (!normalized) {
+    return rows;
+  }
+  return rows.filter((row) =>
+    DOWNLOAD_COLUMNS.some((col) => {
+      if (col === "Action") return false;
+      const value = row[col];
+      return value && String(value).toLowerCase().includes(normalized);
+    })
+  );
+}
+
+function buildDownloadRows() {
+  return savedCertificates.map((entry, index) => {
+    const data = entry.data || {};
+    return {
+      id: entry.id,
+      "S.No": index + 1,
+      "Customer Name": data.customerName || data.ownerName || "—",
+      "Device Imei": data.deviceImei || "—",
+      "Iccid Number": data.esim1 || data.esim2 || data.iccid || "—",
+      "Created Date": formatDisplayDateTime(entry.createdAt),
+      "Created By": entry.createdBy || CERTIFICATE_COMPANY.name || "—",
+      Action: "",
+    };
+  });
+}
+
+function downloadRowsToCsv(rows) {
+  return toCSV(rows, DOWNLOAD_COLUMNS);
+}
+
+async function downloadTableAsPdf() {
+  if (!downloadTableEl) {
+    return;
+  }
+  if (!window.html2canvas || !window.jspdf) {
+    showCertificateStatus("PDF library not ready. Please retry.", true);
+    return;
+  }
+  const wrapper = downloadTableEl.closest(".table-wrapper") || downloadTableEl;
+  const canvas = await window.html2canvas(wrapper, { scale: 2, backgroundColor: "#ffffff" });
+  const imgData = canvas.toDataURL("image/png");
+  const pdf = new window.jspdf.jsPDF("p", "pt", "a4");
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+  const ratio = Math.min(pageWidth / canvas.width, pageHeight / canvas.height);
+  const imgWidth = canvas.width * ratio;
+  const imgHeight = canvas.height * ratio;
+  const offsetX = (pageWidth - imgWidth) / 2;
+  const offsetY = 24;
+  pdf.addImage(imgData, "PNG", offsetX, offsetY, imgWidth, imgHeight);
+  pdf.save("certificates.pdf");
+}
+
+function formatDisplayDate(value) {
+  if (!value) {
+    return "—";
+  }
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+  return date.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "2-digit" });
+}
+
+function formatDisplayDateTime(value) {
+  if (!value) {
+    return "—";
+  }
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return "—";
+  }
+  return `${date.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "2-digit" })} ${date.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}`;
+}
+
+function resetFitmentImages() {
+  [1, 2, 3].forEach((idx) => {
+    fitmentImageData[idx] = "";
+    const input = fitmentImageInputs[idx - 1];
+    if (input) {
+      input.value = "";
+    }
+  });
+}
+
+function handleFitmentImageChange(input, index) {
+  const file = input?.files?.[0];
+  if (!file) {
+    fitmentImageData[index] = "";
+    updateCertificatePreview(getCertificateData());
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    fitmentImageData[index] = event.target.result;
+    updateCertificatePreview(getCertificateData());
+  };
+  reader.readAsDataURL(file);
+}
+
+function withVisiblePreview(run) {
+  if (!certificatePreviewCard) {
+    return run();
+  }
+  const wasHidden = certificatePreviewCard.classList.contains("hidden");
+  if (wasHidden) {
+    certificatePreviewCard.classList.remove("hidden");
+  }
+  const prevDisplay = certificatePreviewCard.style.display;
+  if (getComputedStyle(certificatePreviewCard).display === "none") {
+    certificatePreviewCard.style.display = "block";
+  }
+  try {
+    run();
+  } finally {
+    if (wasHidden) {
+      certificatePreviewCard.classList.add("hidden");
+    }
+    certificatePreviewCard.style.display = prevDisplay;
+  }
+}
+
+function formatDisplayTime(value) {
+  if (!value || !/[T\s]\d{2}:\d{2}/.test(value)) {
+    return "—";
+  }
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return "—";
+  }
+  return date.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
+}
+
+function safeField(value, fallback = "—") {
+  if (!value) {
+    return fallback;
+  }
+  const trimmed = String(value).trim();
+  return trimmed || fallback;
+}
+
+function buildQrText(data) {
+  const rto = [data.rtoState, data.rtoDistrict].filter(Boolean).join("/");
+  return [
+    `Owner:${safeField(data.ownerName, "NA")}`,
+    `Vehicle: ${safeField(data.vehicleNumber, "NA")}`,
+    `Engine: ${safeField(data.engineNumber, "NA")}`,
+    ` Chasis: ${safeField(data.chassisNumber, "NA")}`,
+    `RTO: ${safeField(rto, "NA")}`,
+    `Imei : ${safeField(data.deviceImei, "NA")}`,
+  ].join(",");
+}
+
+function getCertificateData() {
+  if (!certificateForm) {
+    return {};
+  }
+  const formData = new FormData(certificateForm);
+  const data = {};
+  formData.forEach((value, key) => {
+    data[key] = typeof value === "string" ? value.trim() : value;
+  });
+  data.fitmentImage1 = fitmentImageData[1];
+  data.fitmentImage2 = fitmentImageData[2];
+  data.fitmentImage3 = fitmentImageData[3];
+  data.qrText = buildQrText(data);
+  return data;
+}
+
+function populateCertificateForm(data) {
+  if (!certificateForm || !data) {
+    return;
+  }
+  Object.entries(data).forEach(([key, value]) => {
+    const control = certificateForm.elements[key];
+    if (control) {
+      control.value = value ?? "";
+    }
+  });
+}
+
+function updateCertificatePreview(data) {
+  if (!certificatePreviewCard || !certificatePreviewEl) {
+    return;
+  }
+
+  certificatePreviewCard.classList.remove("hidden");
+
+  const rtoParts = [safeField(data.rtoDistrict, ""), safeField(data.rtoState, "")].filter((part) => part && part !== "—");
+  const rtoAddress = rtoParts.length ? rtoParts.join(", ") : "—";
+
+  const previewMap = {
+    deviceModel: safeField(data.deviceModel || data.vtldModel),
+    rtoAddress,
+    fitmentDate: formatDisplayDate(data.installationDate),
+    fitmentValidTill: formatDisplayDate(data.fitmentValidUpto),
+    vehicleNo: safeField(data.vehicleNumber),
+    vehicleType: safeField(data.vehicleType),
+    chassis: safeField(data.chassisNumber),
+    engine: safeField(data.engineNumber),
+    mfgCompany: safeField(data.manufacturingCompany),
+    regDate: formatDisplayDate(data.registrationDate),
+    vehicleModel: safeField(data.vehicleModel),
+    fitnessDate: formatDisplayDate(data.fitnessDate),
+    mfgYear: data.vehicleManufacturingDate ? new Date(data.vehicleManufacturingDate).getFullYear() || "—" : "—",
+    ownerName: safeField(data.ownerName),
+    ownerAddress: safeField(data.customerAddress || data.ownerAddress),
+    dealerName: safeField(data.dealerName),
+    dealerAddress: safeField(data.dealerAddress),
+    sim1: safeField(data.esim1 || data.operator1),
+    sim2: safeField(data.esim2 || data.operator2),
+    vtsModel: safeField(data.vtldModel || data.deviceModel),
+    deviceImei: safeField(data.deviceImei),
+    uniqueId: safeField(data.vtldNumber),
+    iccid: safeField(data.esim1 || data.esim2),
+    invoiceDate: formatDisplayDate(data.invoiceDate),
+    invoiceNo: safeField(data.invoiceNumber),
+    sos: safeField(data.numberOfSos),
+    fitmentValid: formatDisplayDate(data.fitmentValidUpto),
+    ackDate: formatDisplayDate(data.installationDate),
+    ackCustomer: safeField(data.customerName || data.ownerName),
+    ackTime: formatDisplayTime(data.installationDate),
+    ackDl: safeField(data.drivingLicense),
+    ackPlace: safeField(data.rtoDistrict || data.customerAddress),
+    ackMobile: safeField(data.customerMobile || data.ownerMobile),
+  };
+
+  Object.entries(previewMap).forEach(([key, value]) => {
+    const target = certificatePreviewFields[key];
+    if (target) {
+      target.textContent = value;
+    }
+  });
+
+  [1, 2, 3].forEach((idx) => {
+    const img = certificatePreviewFields[`fitmentImage${idx}`];
+    if (!img) {
+      return;
+    }
+    const src = data[`fitmentImage${idx}`] || fitmentImageData[idx];
+    if (src) {
+      img.src = src;
+      img.closest(".cert-image-box")?.classList.add("has-image");
+    } else {
+      img.removeAttribute("src");
+      img.closest(".cert-image-box")?.classList.remove("has-image");
+    }
+  });
+
+  if (certificateQrEl && window.QRCode) {
+    certificateQrEl.innerHTML = "";
+    // Short delay avoids race when library is still parsing.
+    window.requestAnimationFrame(() => {
+      // eslint-disable-next-line no-new
+      new window.QRCode(certificateQrEl, {
+        text: data.qrText || buildQrText(data),
+        width: 130,
+        height: 130,
+        correctLevel: window.QRCode.CorrectLevel.M,
+      });
+    });
+  }
+}
+
+async function generateCertificatePdf(event, dataOverride) {
+  if (event) {
+    event.preventDefault();
+  }
+  if (!certificatePreviewEl) {
+    return;
+  }
+
+  const data = dataOverride || getCertificateData();
+
+  withVisiblePreview(() => {
+    updateCertificatePreview(data);
+  });
+
+  if (!window.html2canvas || !window.jspdf) {
+    showCertificateStatus("Rendering libraries not loaded yet. Please retry.", true);
+    return;
+  }
+
+  showCertificateStatus("Rendering PDF…");
+
+  try {
+    const canvas = await window.html2canvas(certificatePreviewEl, {
+      scale: 2,
+      backgroundColor: "#ffffff",
+    });
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new window.jspdf.jsPDF("p", "pt", "a4");
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const ratio = Math.min(pageWidth / canvas.width, pageHeight / canvas.height);
+    const imgWidth = canvas.width * ratio;
+    const imgHeight = canvas.height * ratio;
+    const offsetX = (pageWidth - imgWidth) / 2;
+    const offsetY = 24;
+    pdf.addImage(imgData, "PNG", offsetX, offsetY, imgWidth, imgHeight);
+    const slug = (data.vehicleNumber || data.ownerName || "certificate")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "") || "certificate";
+    pdf.save(`fitment-certificate-${slug}.pdf`);
+    showCertificateStatus("Certificate downloaded.");
+  } catch (error) {
+    console.error(error);
+    showCertificateStatus("Could not generate the PDF. Please try again.", true);
+  }
+}
+
+function printCertificateView(event, dataOverride) {
+  if (event) {
+    event.preventDefault();
+  }
+  if (!certificatePreviewEl) {
+    return;
+  }
+  const data = dataOverride || getCertificateData();
+  withVisiblePreview(() => {
+    updateCertificatePreview(data);
+  });
+  const printWindow = window.open("", "_blank", "width=900,height=1200");
+  if (!printWindow) {
+    showCertificateStatus("Pop-up blocked. Allow pop-ups to print.", true);
+    return;
+  }
+  const html = `<!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8" />
+        <title>Certificate Print</title>
+        <link rel="stylesheet" href="styles.css" />
+        <style>
+          @page { size: A4 portrait; margin: 10mm; }
+          body { margin: 0; padding: 0; background: #fff; }
+          .certificate-preview { width: 190mm; margin: 0 auto; }
+        </style>
+      </head>
+      <body style="padding:16px; background:#fff;">
+        ${certificatePreviewEl.outerHTML}
+      </body>
+    </html>`;
+  printWindow.document.open();
+  printWindow.document.write(html);
+  printWindow.document.close();
+  printWindow.focus();
+  printWindow.onload = () => {
+    printWindow.print();
+    printWindow.close();
+  };
+}
+
+function saveCertificate(event) {
+  if (event) {
+    event.preventDefault();
+  }
+  // Refresh in-memory cache from storage to avoid overwriting when page stayed open.
+  loadSavedCertificates();
+
+  const data = getCertificateData();
+  updateCertificatePreview(data);
+  const entry = {
+    id: `cert-${Date.now()}`,
+    createdAt: new Date().toISOString(),
+    createdBy: CERTIFICATE_COMPANY.name,
+    data,
+  };
+
+  savedCertificates = [entry, ...savedCertificates];
+  persistSavedCertificates();
+  const filtered = filterDownloadRows(downloadSearchInput?.value || "");
+  renderDownloadTable(filtered);
+  showCertificateStatus("Certificate submitted to downloads list.");
+
+  // Jump the user to the downloads tab so they can see it immediately.
+  switchSection("download");
+}
 
 function updateStatus(message, isError = false) {
   statusEl.textContent = message;
@@ -725,6 +1343,151 @@ function hasNonEmptyValue(rows, column) {
       value !== null &&
       String(value).trim().length > 0
     );
+  });
+}
+
+if (certificateForm) {
+  updateCertificatePreview(getCertificateData());
+  certificateForm.addEventListener("input", () => {
+    updateCertificatePreview(getCertificateData());
+  });
+}
+
+if (fitmentImageInputs.length) {
+  fitmentImageInputs.forEach((input, idx) => {
+    if (!input) {
+      return;
+    }
+    input.addEventListener("change", () => handleFitmentImageChange(input, idx + 1));
+  });
+}
+
+if (fillSampleCertificateBtn) {
+  fillSampleCertificateBtn.addEventListener("click", () => {
+    resetFitmentImages();
+    populateCertificateForm(CERTIFICATE_SAMPLE);
+    updateCertificatePreview(getCertificateData());
+    showCertificateStatus("Sample data loaded.");
+  });
+}
+
+if (saveCertificateBtn) {
+  saveCertificateBtn.addEventListener("click", saveCertificate);
+}
+
+if (generateCertificateBtn) {
+  generateCertificateBtn.addEventListener("click", generateCertificatePdf);
+}
+
+if (printCertificateBtn) {
+  printCertificateBtn.addEventListener("click", printCertificateView);
+}
+
+if (sectionTabs.length) {
+  sectionTabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      const target = tab.dataset.sectionTarget;
+      switchSection(target);
+      if (target === "download") {
+        renderDownloadTable(filterDownloadRows(downloadSearchInput?.value || ""));
+      }
+    });
+  });
+  // Default to generate section.
+  switchSection("generate");
+}
+
+if (downloadTableEl) {
+  loadSavedCertificates();
+  renderDownloadTable(filterDownloadRows(downloadSearchInput?.value || ""));
+  downloadTableEl.addEventListener("click", (event) => {
+    const button = event.target.closest(".download-print-row");
+    if (!button) {
+      return;
+    }
+    const certId = button.dataset.certId;
+    const entry = savedCertificates.find((item) => item.id === certId);
+    if (!entry) {
+      showCertificateStatus("Saved certificate not found.", true);
+      return;
+    }
+    printCertificateView(null, entry.data);
+  });
+}
+
+if (downloadSearchInput) {
+  downloadSearchInput.addEventListener("input", (event) => {
+    const value = event.target.value;
+    const filtered = filterDownloadRows(value);
+    renderDownloadTable(filtered);
+  });
+}
+
+function triggerDownloadFile(content, filename, mime) {
+  const blob = new Blob([content], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+  URL.revokeObjectURL(url);
+}
+
+if (downloadCopyBtn) {
+  downloadCopyBtn.addEventListener("click", async () => {
+    const rows = filterDownloadRows(downloadSearchInput?.value || "");
+    const text = toCSV(rows, DOWNLOAD_COLUMNS);
+    try {
+      await navigator.clipboard.writeText(text);
+      showCertificateStatus("Table copied to clipboard.");
+    } catch (err) {
+      showCertificateStatus("Clipboard unavailable. Download CSV instead.", true);
+    }
+  });
+}
+
+if (downloadExcelBtn) {
+  downloadExcelBtn.addEventListener("click", () => {
+    const rows = filterDownloadRows(downloadSearchInput?.value || "");
+    const csv = downloadRowsToCsv(rows);
+    triggerDownloadFile(csv, "certificates.xls", "text/csv;charset=utf-8;");
+  });
+}
+
+if (downloadCsvBtn) {
+  downloadCsvBtn.addEventListener("click", () => {
+    const rows = filterDownloadRows(downloadSearchInput?.value || "");
+    const csv = downloadRowsToCsv(rows);
+    triggerDownloadFile(csv, "certificates.csv", "text/csv;charset=utf-8;");
+  });
+}
+
+if (downloadPdfBtn) {
+  downloadPdfBtn.addEventListener("click", () => {
+    downloadTableAsPdf();
+  });
+}
+
+if (downloadPrintBtn) {
+  downloadPrintBtn.addEventListener("click", () => {
+    loadSavedCertificates();
+    const entry = savedCertificates[0];
+    if (entry) {
+      printCertificateView(null, entry.data);
+    } else {
+      printCertificateView();
+    }
+  });
+}
+
+if (downloadClearBtn) {
+  downloadClearBtn.addEventListener("click", () => {
+    savedCertificates = [];
+    persistSavedCertificates();
+    renderDownloadTable(filterDownloadRows(downloadSearchInput?.value || ""));
+    showCertificateStatus("Saved certificates cleared.");
   });
 }
 

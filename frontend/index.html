@@ -6,6 +6,9 @@
     <title>FleetFox Device Inventory</title>
     <link rel="stylesheet" href="styles.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
     <script src="app.js" defer></script>
   </head>
   <body>
@@ -14,8 +17,355 @@
       <p>Compare incoming devices with installed units and spot remaining stock.</p>
     </header>
 
+    <nav class="top-tabs">
+      <button type="button" class="tab-btn active" data-section-target="generate">Generate Certificate</button>
+      <button type="button" class="tab-btn" data-section-target="download">Download Certificates</button>
+      <button type="button" class="tab-btn" data-section-target="inventory">Device Inventory</button>
+    </nav>
+
     <main>
-      <section class="card">
+      <section class="card" id="certificate-card" data-section="generate">
+        <div class="section-heading">
+          <div>
+            <h2>Fitment certificate</h2>
+            <p class="hint">Generate a QR-backed fitment certificate with the latest company details.</p>
+          </div>
+          <div class="actions">
+            <button type="button" id="saveCertificate" class="primary">Submit</button>
+            <button type="button" id="fillSampleCertificate" class="secondary">Load sample</button>
+            <button type="button" id="printCertificate" class="secondary">Print</button>
+            <button type="button" id="generateCertificate" class="primary">Download PDF</button>
+          </div>
+        </div>
+
+        <form id="certificateForm" class="certificate-grid">
+          <label>
+            Owner name
+            <input id="ownerName" name="ownerName" placeholder="Owner" required />
+          </label>
+          <label>
+            Vehicle number
+            <input id="vehicleNumber" name="vehicleNumber" placeholder="Vehicle" required />
+          </label>
+          <label>
+            Engine number
+            <input id="engineNumber" name="engineNumber" placeholder="Engine" required />
+          </label>
+          <label>
+            Chassis number
+            <input id="chassisNumber" name="chassisNumber" placeholder="Chassis" required />
+          </label>
+          <label>
+            RTO district/city
+            <input id="rtoDistrict" name="rtoDistrict" placeholder="District or city" />
+          </label>
+          <label>
+            RTO state
+            <input id="rtoState" name="rtoState" placeholder="State" />
+          </label>
+          <label>
+            Device IMEI
+            <input id="deviceImei" name="deviceImei" placeholder="IMEI" />
+          </label>
+          <label>
+            Device model
+            <input id="deviceModel" name="deviceModel" placeholder="Model" />
+          </label>
+          <label>
+            Vehicle type
+            <input id="vehicleType" name="vehicleType" placeholder="Type of vehicle" />
+          </label>
+          <label>
+            Vehicle model
+            <input id="vehicleModel" name="vehicleModel" placeholder="Vehicle model" />
+          </label>
+          <label>
+            Manufacturing company
+            <input id="manufacturingCompany" name="manufacturingCompany" placeholder="Manufacturer" />
+          </label>
+          <label>
+            Vehicle manufacturing date
+            <input id="vehicleManufacturingDate" name="vehicleManufacturingDate" type="date" />
+          </label>
+          <label>
+            Registration date
+            <input id="registrationDate" name="registrationDate" type="date" />
+          </label>
+          <label>
+            Device installation date
+            <input id="installationDate" name="installationDate" type="date" />
+          </label>
+          <label>
+            Last fitness date
+            <input id="fitnessDate" name="fitnessDate" type="date" />
+          </label>
+          <label>
+            Fitment valid up to
+            <input id="fitmentValidUpto" name="fitmentValidUpto" type="date" />
+          </label>
+          <label>
+            Invoice number
+            <input id="invoiceNumber" name="invoiceNumber" placeholder="Invoice no." />
+          </label>
+          <label>
+            Invoice date
+            <input id="invoiceDate" name="invoiceDate" type="date" />
+          </label>
+          <label>
+            Number of SOS
+            <input id="numberOfSos" name="numberOfSos" type="number" min="0" placeholder="0" />
+          </label>
+          <label>
+            Esim validity
+            <input id="esimValidity" name="esimValidity" type="date" />
+          </label>
+          <label>
+            Vtld number
+            <input id="vtldNumber" name="vtldNumber" placeholder="Vtld" />
+          </label>
+          <label>
+            Vtld model
+            <input id="vtldModel" name="vtldModel" placeholder="Model" />
+          </label>
+          <label>
+            Operator 1
+            <input id="operator1" name="operator1" placeholder="Operator" />
+          </label>
+          <label>
+            Operator 2
+            <input id="operator2" name="operator2" placeholder="Operator" />
+          </label>
+          <label>
+            Esim 1
+            <input id="esim1" name="esim1" placeholder="Esim" />
+          </label>
+          <label>
+            Esim 2
+            <input id="esim2" name="esim2" placeholder="Esim" />
+          </label>
+          <label class="wide">
+            Customer name
+            <input id="customerName" name="customerName" placeholder="Customer" />
+          </label>
+          <label class="wide">
+            Customer address
+            <textarea id="customerAddress" name="customerAddress" rows="2" placeholder="Address"></textarea>
+          </label>
+          <label class="wide">
+            Dealer name
+            <input id="dealerName" name="dealerName" placeholder="Dealer" />
+          </label>
+          <label class="wide">
+            Dealer address
+            <textarea id="dealerAddress" name="dealerAddress" rows="2" placeholder="Address"></textarea>
+          </label>
+          <label class="wide">
+            Fitment image 1
+            <input id="fitmentImage1" name="fitmentImage1" type="file" accept="image/*" data-image-index="1" />
+          </label>
+          <label class="wide">
+            Fitment image 2
+            <input id="fitmentImage2" name="fitmentImage2" type="file" accept="image/*" data-image-index="2" />
+          </label>
+          <label class="wide">
+            Fitment image 3
+            <input id="fitmentImage3" name="fitmentImage3" type="file" accept="image/*" data-image-index="3" />
+          </label>
+        </form>
+
+        <p id="certificateStatus" class="status hidden">Ready to generate.</p>
+      </section>
+
+      <section class="card hidden" id="certificatePreviewCard" data-section="generate">
+        <h3>Certificate preview</h3>
+        <div id="certificatePreview" class="certificate-preview">
+          <div class="cert-page">
+            <div class="cert-header-row">
+              <div class="cert-company">
+                <h4>YAAR IT SOLUTIONS</h4>
+                <p>GSTIN : 08AGQPG4963Q1ZG</p>
+                <p>EMAIL : info.fleetfox@gmail.com</p>
+              </div>
+              <div class="cert-rto">
+                <p class="cert-rto-title">RTO Copy</p>
+                <p>WETRACK-140 GPS DEVICE</p>
+                <p>(AIS 140 COMPLIANT)</p>
+                <p>Installation/Fitment Certificate</p>
+              </div>
+              <div class="cert-qr" id="certificateQr"></div>
+            </div>
+
+            <div class="cert-meta-row">
+              <div class="cert-to">
+                <p class="strong">To,</p>
+                <p class="strong">The Regional Transport Officer,</p>
+                <p id="previewRtoAddress">—</p>
+              </div>
+              <div class="cert-fitment">
+                <p><span class="strong">Fitment Date :</span> <span id="previewFitmentDate">—</span></p>
+                <p><span class="strong">Fitment Valid Till :</span> <span id="previewFitmentValidTill">—</span></p>
+              </div>
+            </div>
+
+            <div class="cert-section">
+              <div class="cert-section-title">Vehicle Details</div>
+              <div class="cert-grid four">
+                <div class="cert-cell"><span class="label">Vehicle No :</span><span id="previewVehicleNo">—</span></div>
+                <div class="cert-cell"><span class="label">Vehicle Type :</span><span id="previewVehicleType">—</span></div>
+                <div class="cert-cell"><span class="label">Chasis No :</span><span id="previewChassis">—</span></div>
+                <div class="cert-cell"><span class="label">Engine No :</span><span id="previewEngine">—</span></div>
+                <div class="cert-cell"><span class="label">Mfg. Company :</span><span id="previewMfgCompany">—</span></div>
+                <div class="cert-cell"><span class="label">Reg. Date :</span><span id="previewRegDate">—</span></div>
+                <div class="cert-cell"><span class="label">Vehicle Model :</span><span id="previewVehicleModel">—</span></div>
+                <div class="cert-cell"><span class="label">Last fitness Date :</span><span id="previewFitnessDate">—</span></div>
+                <div class="cert-cell"><span class="label">Date of mfg. Year :</span><span id="previewMfgYear">—</span></div>
+              </div>
+            </div>
+
+            <div class="cert-section two-col">
+              <div class="cert-section-title">Vehicle Owner Details</div>
+              <div class="cert-row-line">
+                <div><span class="label">Owner Name :</span><span id="previewOwnerName">—</span></div>
+                <div><span class="label">Owner Address :</span><span id="previewOwnerAddress">—</span></div>
+              </div>
+            </div>
+
+            <div class="cert-section">
+              <div class="cert-section-title">Dealer Details</div>
+              <div class="cert-grid three">
+                <div class="cert-cell"><span class="label">Dealer Name :</span><span id="previewDealerName">—</span></div>
+                <div class="cert-cell"><span class="label">Dealer Address :</span><span id="previewDealerAddress">—</span></div>
+                <div class="cert-cell"><span class="label">Sim 1 :</span><span id="previewSim1">—</span></div>
+                <div class="cert-cell"><span class="label">Sim 2 :</span><span id="previewSim2">—</span></div>
+              </div>
+            </div>
+
+            <div class="cert-section">
+              <div class="cert-section-title">VTS Details</div>
+              <div class="cert-grid four">
+                <div class="cert-cell"><span class="label">VTS Model :</span><span id="previewVtsModel">—</span></div>
+                <div class="cert-cell"><span class="label">Device Imei :</span><span id="previewDeviceImei">—</span></div>
+                <div class="cert-cell"><span class="label">Unique Id :</span><span id="previewUniqueId">—</span></div>
+                <div class="cert-cell"><span class="label">ICCID No :</span><span id="previewIccid">—</span></div>
+                <div class="cert-cell"><span class="label">Invoice date :</span><span id="previewInvoiceDate">—</span></div>
+                <div class="cert-cell"><span class="label">Invoice No :</span><span id="previewInvoiceNo">—</span></div>
+                <div class="cert-cell"><span class="label">Number Of Sos :</span><span id="previewSos">—</span></div>
+                <div class="cert-cell"><span class="label">Fitment Valid Upto :</span><span id="previewFitmentValid">—</span></div>
+              </div>
+            </div>
+
+            <div class="cert-section">
+              <div class="cert-section-title">Fitment Images</div>
+              <div class="cert-images-row">
+                <div class="cert-image-box">
+                  <img id="previewFitmentImage1" class="cert-image" alt="Fitment image 1" />
+                </div>
+                <div class="cert-image-box">
+                  <img id="previewFitmentImage2" class="cert-image" alt="Fitment image 2" />
+                </div>
+                <div class="cert-image-box">
+                  <img id="previewFitmentImage3" class="cert-image" alt="Fitment image 3" />
+                </div>
+              </div>
+            </div>
+
+            <div class="cert-footer">
+              <div>
+                <p class="label">Authorized Dealer:</p>
+                <p>Department Of Transport : (Seal & Sign)</p>
+              </div>
+              <div class="footer-sign">
+                <p class="label">Checked & Verified</p>
+                <p>Signature of MVI/RTO :</p>
+                <p>YAAR IT SOLUTIONS</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="cert-page page-break">
+            <p class="cert-psr-title">(PRODUCT SATISFACTION REPORT BY VEHICLE OWNER)</p>
+            <ol class="cert-psr-list">
+              <li>This is to acknowledge and confirm that we have got our vehicle bearing registration No.. fitted with GPS Device (Model No: VTD - 10, AIS 140 Compliant) manufactured by YAAR IT SOLUTIONS.</li>
+              <li>I have read the terms and conditions given overleaf and confirm that this Fitment Certificate is being issued on the basis of my understanding and acceptance to them. I also understand that all rights and obligations of parties will be governed by the aforesaid terms and conditions only.</li>
+            </ol>
+
+            <div class="cert-do-dont">
+              <div>
+                <p class="strong">Do'</p>
+                <ol>
+                  <li>The GPS unit operates on 12-24 V DC of the vehicle battery.</li>
+                  <li>Please protect the GPS unit from any unwarranted tampering, water and damages.</li>
+                  <li>During servicing of vehicles ensure that power connection are disconnected from battery.</li>
+                </ol>
+              </div>
+              <div>
+                <p class="strong">Don'ts</p>
+                <ol>
+                  <li>Please do not cover GPS one metallic box or sheet which shall disturb the functioning of the GPS unit.</li>
+                  <li>Do not alter wire and tamper device.</li>
+                  <li>System should not be located at places of direct heat sources such as engine cover etc.</li>
+                </ol>
+              </div>
+            </div>
+
+            <div class="cert-ack">
+              <div><span class="label">Date:</span> <span id="previewAckDate">—</span></div>
+              <div><span class="label">Name of the Customer:</span> <span id="previewAckCustomer">—</span></div>
+              <div><span class="label">Time:</span> <span id="previewAckTime">—</span></div>
+              <div><span class="label">Driving License Number:</span> <span id="previewAckDl">—</span></div>
+              <div><span class="label">Place:</span> <span id="previewAckPlace">—</span></div>
+              <div><span class="label">Mobile Number:</span> <span id="previewAckMobile">—</span></div>
+            </div>
+
+            <p class="cert-thanks">Thanking You</p>
+            <p class="cert-thanks">Signature</p>
+            <p class="cert-signatory">For YAAR IT SOLUTIONS</p>
+            <p class="cert-signature-line">Authorised Signatory</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="card hidden" id="downloadCertificatesCard" data-section="download">
+        <div class="section-heading">
+          <div>
+            <h2>Download Certificates</h2>
+            <p class="hint">Search past certificates and export them just like the reference UI.</p>
+          </div>
+          <div class="actions download-actions">
+            <button id="downloadCopy" type="button" class="secondary">Copy</button>
+            <button id="downloadExcel" type="button" class="secondary">Excel</button>
+            <button id="downloadCsv" type="button" class="secondary">CSV</button>
+            <button id="downloadPdf" type="button" class="secondary">PDF</button>
+            <button id="downloadPrint" type="button" class="primary">Print</button>
+            <button id="downloadClear" type="button" class="secondary">Clear saved</button>
+          </div>
+        </div>
+        <div class="table-toolbar">
+          <label class="download-search">
+            Search:
+            <input type="search" id="downloadSearch" placeholder="Search certificates" />
+          </label>
+        </div>
+        <div class="table-wrapper">
+          <table id="downloadTable">
+            <thead>
+              <tr>
+                <th>S.No</th>
+                <th>Customer Name</th>
+                <th>Device Imei</th>
+                <th>Iccid Number</th>
+                <th>Created Date</th>
+                <th>Created By</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p id="downloadCount" class="hint"></p>
+      </section>
+
+      <section class="card" data-section="inventory">
         <h2>1. Upload the latest spreadsheets</h2>
         <p class="hint">
           Accepts the original <code>incoming.xlsx</code> file and the exported
@@ -47,7 +397,7 @@
         </div>
       </section>
 
-      <section id="view-incoming" class="card data-view hidden">
+      <section id="view-incoming" class="card data-view hidden" data-section="inventory">
         <h2>Incoming devices</h2>
         <div class="meta">
           <div class="meta-info">
@@ -65,7 +415,7 @@
         </div>
       </section>
 
-      <section id="view-installed" class="card data-view hidden">
+      <section id="view-installed" class="card data-view hidden" data-section="inventory">
         <h2>Installed devices</h2>
         <div class="meta">
           <div class="meta-info">
@@ -84,7 +434,7 @@
         </div>
       </section>
 
-      <section id="view-stock" class="card data-view hidden">
+      <section id="view-stock" class="card data-view hidden" data-section="inventory">
         <h2>Devices still in stock</h2>
         <div class="meta">
           <div class="meta-info">
@@ -102,7 +452,7 @@
         </div>
       </section>
 
-      <section id="view-history" class="card data-view hidden">
+      <section id="view-history" class="card data-view hidden" data-section="inventory">
         <h2>Saved stock reports</h2>
         <div class="meta">
           <div class="meta-info">
