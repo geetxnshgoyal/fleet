@@ -624,20 +624,29 @@ async function generateCertificatePdf(event, dataOverride) {
   showCertificateStatus("Rendering PDF…");
 
   try {
-    const canvas = await window.html2canvas(certificatePreviewEl, {
-      scale: 2,
-      backgroundColor: "#ffffff",
-    });
-    const imgData = canvas.toDataURL("image/png");
+    const pages = Array.from(certificatePreviewEl.querySelectorAll(".cert-page"));
+    const targets = pages.length ? pages : [certificatePreviewEl];
     const pdf = new window.jspdf.jsPDF("p", "pt", "a4");
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    const ratio = Math.min(pageWidth / canvas.width, pageHeight / canvas.height);
-    const imgWidth = canvas.width * ratio;
-    const imgHeight = canvas.height * ratio;
-    const offsetX = (pageWidth - imgWidth) / 2;
-    const offsetY = 24;
-    pdf.addImage(imgData, "PNG", offsetX, offsetY, imgWidth, imgHeight);
+    for (let i = 0; i < targets.length; i += 1) {
+      const node = targets[i];
+      // eslint-disable-next-line no-await-in-loop
+      const canvas = await window.html2canvas(node, {
+        scale: 2,
+        backgroundColor: "#ffffff",
+      });
+      const imgData = canvas.toDataURL("image/png");
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const ratio = Math.min(pageWidth / canvas.width, pageHeight / canvas.height);
+      const imgWidth = canvas.width * ratio;
+      const imgHeight = canvas.height * ratio;
+      const offsetX = (pageWidth - imgWidth) / 2;
+      const offsetY = 24;
+      if (i > 0) {
+        pdf.addPage();
+      }
+      pdf.addImage(imgData, "PNG", offsetX, offsetY, imgWidth, imgHeight);
+    }
     const slug = (data.vehicleNumber || data.ownerName || "certificate")
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
