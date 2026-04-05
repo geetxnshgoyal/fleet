@@ -173,6 +173,8 @@ document.addEventListener('DOMContentLoaded', () => {
         company: document.getElementById('form-company').value,
         phone:   document.getElementById('form-phone').value,
         message: document.getElementById('form-message').value,
+        title:   document.getElementById('form-name').value,
+        time:    new Date().toLocaleString(),
       };
 
       // Show sending state
