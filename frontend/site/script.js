@@ -208,7 +208,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       } catch (error) {
         console.error('Email send failed:', error);
-        btn.textContent = 'Failed, try again';
+        const errMsg = error?.text || error?.message || 'Unknown error';
+        btn.textContent = `Error: ${errMsg}`;
         btn.style.background = '#ff4444';
         btn.style.color = '#fff';
         btn.style.opacity = '1';
