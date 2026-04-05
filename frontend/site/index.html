@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FleetFox | Connected OS for Logistics</title>
+  <meta name="description" content="FleetFox is the AI-native, connected operating system for logistics. Real-time fleet visibility, route optimization, driver safety, and sustainability, all on one platform." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- ═══════════════ NAVIGATION ═══════════════ -->
+  <header id="site-header">
+    <nav id="main-nav">
+      <a href="#" class="nav-logo" id="nav-logo">
+        <span class="logo-fleet">FLEET</span><span class="logo-fox">FOX</span>
+      </a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="#platform" class="nav-link">Platform</a></li>
+        <li><a href="#capabilities" class="nav-link">Capabilities</a></li>
+        <li><a href="#industries" class="nav-link">Industries</a></li>
+        <li><a href="#stats" class="nav-link">Impact</a></li>
+        <li><a href="#testimonial" class="nav-link">Clients</a></li>
+      </ul>
+      <a href="#contact" class="nav-cta" id="nav-cta">Request Demo</a>
+      <button class="mobile-toggle" id="mobile-toggle" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </header>
+
+  <!-- ═══════════════ HERO ═══════════════ -->
+  <section id="hero" class="section-dark">
+    <div class="grid-overlay"></div>
+    <div class="hero-video-wrap">
+      <video autoplay muted loop playsinline id="hero-video">
+        <source src="assets/videos/hero-main.mp4" type="video/mp4" />
+      </video>
+      <div class="hero-video-overlay"></div>
+    </div>
+    <div class="hero-content" id="hero-content">
+      <p class="hero-tag">Connected OS for Logistics</p>
+      <h1 class="hero-title">
+        Transforming Global<br />
+        Road <span class="accent">Transportation.</span>
+      </h1>
+      <ul class="hero-bullets">
+        <li>AI-native fleet visibility from origin to destination</li>
+        <li>Single pane of glass for all logistics operations</li>
+        <li>Unified platform with real-time tracking &amp; analytics</li>
+        <li>Configurable across your entire fleet network</li>
+        <li>Deep ERP &amp; telematics integrations</li>
+        <li>Data-rich, predictive, and sustainable</li>
+      </ul>
+      <a href="#contact" class="btn-primary" id="hero-cta">Request Demo</a>
+    </div>
+    <div class="hero-scroll-hint" id="scroll-hint">
+      <span>Scroll to explore</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ PLATFORM INTRO ═══════════════ -->
+  <section id="platform" class="section-light">
+    <div class="grid-overlay dark"></div>
+    <div class="container">
+      <div class="section-label">Connected Operating System</div>
+      <h2 class="section-title dark-text">
+        Imagine logistics as an intelligent bridge<br />
+        seamlessly connecting <span class="accent">shipper to destination.</span>
+      </h2>
+      <div class="platform-split">
+        <div class="platform-media reveal-left">
+          <video autoplay muted loop playsinline class="platform-video" id="dashboard-video">
+            <source src="assets/videos/dashboard.mp4" type="video/mp4" />
+          </video>
+          <img src="assets/images/dashboard-mockup.png" alt="FleetFox Dashboard" class="platform-img" />
+        </div>
+        <div class="platform-text reveal-right">
+          <h3>FOS™ FleetFox Operating System</h3>
+          <p class="subtitle">A single solution for<br /><strong>maximum, connected throughput</strong></p>
+          <p>Deep integrations anticipate incoming loads, enabling our AI-powered tracking to automate fleet monitoring and all critical logistics operations: from assigning routes and maintaining real-time visibility to coordinating drivers for efficient load movement. It then closes the loop by validating deliveries, providing comprehensive performance supervision across your entire logistics network.</p>
+          <a href="#capabilities" class="btn-outline dark">Explore Capabilities</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ CAPABILITIES ═══════════════ -->
+  <section id="capabilities" class="section-dark">
+    <div class="grid-overlay"></div>
+    <div class="container">
+      <div class="section-label">Core of FOS</div>
+      <h2 class="section-title">Six pillars that power<br /><span class="accent">every mile.</span></h2>
+
+      <div class="capabilities-grid">
+        <div class="cap-card reveal-up" id="cap-safety">
+          <div class="cap-number">01</div>
+          <div class="cap-icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h3>Safety</h3>
+          <p>Enhances fleet safety with 24/7 monitoring, real-time vehicle &amp; driver alerts, and actionable insights. Reducing accidents by up to <strong>40%</strong> through behavior tracking and HOS compliance.</p>
+        </div>
+        <div class="cap-card reveal-up" id="cap-efficiency" style="animation-delay:.1s">
+          <div class="cap-number">02</div>
+          <div class="cap-icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          </div>
+          <h3>Efficiency</h3>
+          <p>Optimize routes and reduce idle time, achieving up to <strong>30% faster</strong> deliveries and a <strong>15% reduction</strong> in fuel consumption through intelligent route planning.</p>
+        </div>
+        <div class="cap-card reveal-up" id="cap-flexibility" style="animation-delay:.2s">
+          <div class="cap-number">03</div>
+          <div class="cap-icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 00-8 0v2"/></svg>
+          </div>
+          <h3>Flexibility</h3>
+          <p>Sector-agnostic and fully customizable, offering a unified system on one screen. Features <strong>99.9% trip accuracy</strong> across diverse logistics verticals.</p>
+        </div>
+        <div class="cap-card reveal-up" id="cap-resilience" style="animation-delay:.3s">
+          <div class="cap-number">04</div>
+          <div class="cap-icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          </div>
+          <h3>Resilience</h3>
+          <p>Utilizes multi-tracking modes and historical data for real-time visibility and proactive risk identification across every route in your network.</p>
+        </div>
+        <div class="cap-card reveal-up" id="cap-digital" style="animation-delay:.4s">
+          <div class="cap-number">05</div>
+          <div class="cap-icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m8 17 4 4 4-4"/></svg>
+          </div>
+          <h3>Digital Fluency</h3>
+          <p>Seamlessly integrates with ERPs and telematics via a <strong>LOW CODE / NO CODE</strong> architecture for 100% transparency across systems.</p>
+        </div>
+        <div class="cap-card reveal-up" id="cap-sustain" style="animation-delay:.5s">
+          <div class="cap-number">06</div>
+          <div class="cap-icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17.5 19.5c1.5-2.5 2-5.5.5-8.5-1.5-3-4-4.5-7-4.5S5 9 3.5 12c-1.5 3-1 6 .5 8.5"/><path d="M12 2v10"/><circle cx="12" cy="12" r="1"/></svg>
+          </div>
+          <h3>Sustainability</h3>
+          <p>Reduces carbon emissions by up to <strong>20%</strong> through route optimization, load efficiency, and intelligent fuel management across your fleet.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ HOW IT WORKS ═══════════════ -->
+  <section id="how-it-works" class="section-light">
+    <div class="grid-overlay dark"></div>
+    <div class="container">
+      <div class="section-label">How It Works</div>
+      <h2 class="section-title dark-text">
+        Revolutionary technology that transforms<br />
+        your fleet from <span class="accent">origin to destination.</span>
+      </h2>
+      <div class="steps-grid">
+        <div class="step-item reveal-up" id="step-1">
+          <div class="step-num">01</div>
+          <div class="step-content">
+            <h3>Gate: Seamless Fleet Check-In</h3>
+            <p>Driver monitoring and scorecards for real-time insights. Multi-tracking mode with auto fail-safe engine for uninterrupted operations.</p>
+          </div>
+        </div>
+        <div class="step-item reveal-up" id="step-2">
+          <div class="step-num">02</div>
+          <div class="step-content">
+            <h3>Route: Intelligent Journey Management</h3>
+            <p>Real-time visibility with automated decision-making. Optimized routes reduce idle miles and maximize delivery efficiency.</p>
+          </div>
+        </div>
+        <div class="step-item reveal-up" id="step-3">
+          <div class="step-num">03</div>
+          <div class="step-content">
+            <h3>Dock: End-to-End Delivery Validation</h3>
+            <p>E-sealing technology to control pilferage and theft. Digital PODs and paperless workflows for 100% transparency.</p>
+          </div>
+        </div>
+        <div class="step-item reveal-up" id="step-4">
+          <div class="step-num">04</div>
+          <div class="step-content">
+            <h3>Network: Unified Operations Oversight</h3>
+            <p>End-to-end supply chain visibility with live location updates. 3PL SLA adherence and cross-network performance analytics.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ FLEET OWNER / CONSIGNOR TABS ═══════════════ -->
+  <section id="roles" class="section-dark">
+    <div class="grid-overlay"></div>
+    <div class="container">
+      <div class="section-label">A Unified Platform</div>
+      <h2 class="section-title">For Shippers &amp;<br /><span class="accent">Fleet Owners.</span></h2>
+      <p class="section-subtitle">End-to-End Monitoring, Compliance, and Efficiency at Scale</p>
+
+      <div class="tab-switcher" id="role-tabs">
+        <button class="tab-btn active" data-tab="fleet-owner" id="tab-fleet-owner">Fleet Owner</button>
+        <button class="tab-btn" data-tab="consignors" id="tab-consignors">Consignors</button>
+      </div>
+
+      <div class="tab-content active" id="content-fleet-owner">
+        <div class="role-grid">
+          <div class="role-card" id="role-owner">
+            <div class="role-icon">👤</div>
+            <h4>Owner</h4>
+            <ul>
+              <li>Driver monitoring &amp; scorecards for real-time insights</li>
+              <li>Real-time visibility with automated decision-making</li>
+              <li>Auto fail-safe engine for uninterrupted operations</li>
+              <li>E-sealing technology to control pilferage and theft</li>
+            </ul>
+          </div>
+          <div class="role-card" id="role-driver">
+            <div class="role-icon">🚛</div>
+            <h4>Driver</h4>
+            <ul>
+              <li>Objective mishap assessment and support</li>
+              <li>Fatigue reduction via intelligent monitoring</li>
+              <li>Automated HOS tracking for compliance</li>
+              <li>Fair compensation through transparent data</li>
+            </ul>
+          </div>
+          <div class="role-card" id="role-finance">
+            <div class="role-icon">💰</div>
+            <h4>Finance</h4>
+            <ul>
+              <li>Cost savings from reduced idle miles</li>
+              <li>Customizable audits and reporting</li>
+              <li>Predictive maintenance cost forecasting</li>
+              <li>Actionable financial insights</li>
+            </ul>
+          </div>
+          <div class="role-card" id="role-digital">
+            <div class="role-icon">🔗</div>
+            <h4>Digitalization</h4>
+            <ul>
+              <li>Real-time data sync with ERPs</li>
+              <li>e-PODs and digital documentation</li>
+              <li>Paperless workflows end-to-end</li>
+              <li>100% transparency across systems</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="content-consignors">
+        <div class="role-grid">
+          <div class="role-card" id="role-supply">
+            <div class="role-icon">📦</div>
+            <h4>Supply Chain</h4>
+            <ul>
+              <li>End-to-end visibility across shipments</li>
+              <li>Live location updates in real-time</li>
+              <li>3PL SLA adherence monitoring</li>
+              <li>Cross-network performance analytics</li>
+            </ul>
+          </div>
+          <div class="role-card" id="role-cfinance">
+            <div class="role-icon">📊</div>
+            <h4>Finance</h4>
+            <ul>
+              <li>Detailed cost analysis per shipment</li>
+              <li>Actionable financial reports</li>
+              <li>Mitigation of losses from theft</li>
+              <li>Budget optimization insights</li>
+            </ul>
+          </div>
+          <div class="role-card" id="role-dtrans">
+            <div class="role-icon">⚡</div>
+            <h4>Digital Transformation</h4>
+            <ul>
+              <li>100% transparency in operations</li>
+              <li>Data-driven decision-making</li>
+              <li>Digitized workflows across partners</li>
+              <li>Seamless ERP integration</li>
+            </ul>
+          </div>
+          <div class="role-card" id="role-csafety">
+            <div class="role-icon">🛡️</div>
+            <h4>Safety</h4>
+            <ul>
+              <li>Proactive risk management</li>
+              <li>Secured high-value shipments via E-Sealing</li>
+              <li>Real-time intervention capabilities</li>
+              <li>Geofencing and SOS alerts</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ STATS ═══════════════ -->
+  <section id="stats" class="section-accent">
+    <div class="grid-overlay"></div>
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-item reveal-up" id="stat-years">
+          <div class="stat-number" data-target="15">0</div>
+          <div class="stat-suffix">+ Years</div>
+          <div class="stat-label">in the Logistics Industry</div>
+        </div>
+        <div class="stat-item reveal-up" id="stat-alerts" style="animation-delay:.1s">
+          <div class="stat-number" data-target="25">0</div>
+          <div class="stat-suffix">Million+</div>
+          <div class="stat-label">Alerts Generated Monthly</div>
+        </div>
+        <div class="stat-item reveal-up" id="stat-data" style="animation-delay:.2s">
+          <div class="stat-number" data-target="1">0</div>
+          <div class="stat-suffix">Billion+</div>
+          <div class="stat-label">Data Points Captured Daily</div>
+        </div>
+        <div class="stat-item reveal-up" id="stat-km" style="animation-delay:.3s">
+          <div class="stat-number" data-target="1.5">0</div>
+          <div class="stat-suffix">Billion km</div>
+          <div class="stat-label">Tracked Monthly</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ INDUSTRIES ═══════════════ -->
+  <section id="industries" class="section-light">
+    <div class="grid-overlay dark"></div>
+    <div class="container">
+      <div class="section-label">Industries We Serve</div>
+      <h2 class="section-title dark-text">
+        Trusted by operators across<br /><span class="accent">every vertical.</span>
+      </h2>
+      <div class="industries-marquee">
+        <div class="marquee-track">
+          <div class="industry-tag">Cement</div>
+          <div class="industry-tag">Oil &amp; Gas</div>
+          <div class="industry-tag">Metal &amp; Mining</div>
+          <div class="industry-tag">Automobile</div>
+          <div class="industry-tag">E-commerce</div>
+          <div class="industry-tag">FMCG</div>
+          <div class="industry-tag">Port Logistics</div>
+          <div class="industry-tag">Fertilizers</div>
+          <div class="industry-tag">Cement</div>
+          <div class="industry-tag">Oil &amp; Gas</div>
+          <div class="industry-tag">Metal &amp; Mining</div>
+          <div class="industry-tag">Automobile</div>
+          <div class="industry-tag">E-commerce</div>
+          <div class="industry-tag">FMCG</div>
+          <div class="industry-tag">Port Logistics</div>
+          <div class="industry-tag">Fertilizers</div>
+        </div>
+      </div>
+      <div class="industry-cards-grid">
+        <div class="ind-card reveal-up" id="ind-cement">
+          <div class="ind-icon">🏗️</div>
+          <h4>Cement</h4>
+          <p>Real-time tracking for heavy-haul cement logistics with multi-plant coordination.</p>
+        </div>
+        <div class="ind-card reveal-up" id="ind-oil">
+          <div class="ind-icon">⛽</div>
+          <h4>Oil &amp; Gas</h4>
+          <p>Secure, compliant transportation monitoring for hazardous materials.</p>
+        </div>
+        <div class="ind-card reveal-up" id="ind-metal">
+          <div class="ind-icon">⚙️</div>
+          <h4>Metal &amp; Mining</h4>
+          <p>Heavy-load fleet management with predictive maintenance integration.</p>
+        </div>
+        <div class="ind-card reveal-up" id="ind-auto">
+          <div class="ind-icon">🚗</div>
+          <h4>Automobile</h4>
+          <p>JIT delivery tracking for automotive supply chain synchronization.</p>
+        </div>
+        <div class="ind-card reveal-up" id="ind-ecom">
+          <div class="ind-icon">📦</div>
+          <h4>E-commerce</h4>
+          <p>Last-mile delivery optimization with real-time customer visibility.</p>
+        </div>
+        <div class="ind-card reveal-up" id="ind-fmcg">
+          <div class="ind-icon">🛒</div>
+          <h4>FMCG</h4>
+          <p>High-frequency distribution management with route optimization.</p>
+        </div>
+        <div class="ind-card reveal-up" id="ind-port">
+          <div class="ind-icon">🚢</div>
+          <h4>Port Logistics</h4>
+          <p>Connected port-to-warehouse coordination with container tracking.</p>
+        </div>
+        <div class="ind-card reveal-up" id="ind-fert">
+          <div class="ind-icon">🌱</div>
+          <h4>Fertilizers</h4>
+          <p>Seasonal demand logistics with bulk transport visibility.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ TESTIMONIAL ═══════════════ -->
+  <section id="testimonial" class="section-dark">
+    <div class="grid-overlay"></div>
+    <div class="container">
+      <div class="section-label">Trusted by Operators</div>
+      <h2 class="section-title">Trusted by leading operators looking for<br /><span class="accent">real logistics innovation.</span></h2>
+      <div class="testimonial-card reveal-up" id="testimonial-card">
+        <div class="quote-mark">"</div>
+        <blockquote>
+          FleetFox has provided us with enhanced vehicle visibility, leading to optimized freight cost and improved Turnaround Time (TAT). The platform's real-time tracking and analytics have transformed how we manage our fleet operations.
+        </blockquote>
+        <div class="quote-author">
+          <div class="author-info">
+            <strong>Senior Logistics Manager</strong>
+            <span>Leading E-commerce Marketplace</span>
+          </div>
+        </div>
+      </div>
+      <div class="client-logos" id="client-logos">
+        <div class="logo-item">Ambuja Cement</div>
+        <div class="logo-item">XpressBees</div>
+        <div class="logo-item">Hindalco</div>
+        <div class="logo-item">Delhivery</div>
+        <div class="logo-item">UltraTech</div>
+        <div class="logo-item">Nuvoco</div>
+        <div class="logo-item">Maruti Suzuki</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ SOLUTIONS ═══════════════ -->
+  <section id="solutions" class="section-light">
+    <div class="grid-overlay dark"></div>
+    <div class="container">
+      <div class="section-label">Logistic Solutions</div>
+      <h2 class="section-title dark-text">
+        Easy, scalable<br /><span class="accent">operations.</span>
+      </h2>
+      <p class="section-desc dark-text">FleetFox was designed from the ground up for disruption-free logistics. Easy to deploy, with low IT lift and deep integrations that work with your existing ERP and TMS systems.</p>
+      <div class="solutions-grid">
+        <div class="sol-card reveal-up" id="sol-xswift">
+          <h4>xSwift</h4>
+          <p>High-speed fleet management with AI-powered route intelligence and real-time tracking.</p>
+        </div>
+        <div class="sol-card reveal-up" id="sol-elogix">
+          <h4>eLogix</h4>
+          <p>End-to-end digital logistics platform for connected supply chain visibility.</p>
+        </div>
+        <div class="sol-card reveal-up" id="sol-cpl">
+          <h4>Connected Plant Logistics</h4>
+          <p>Plant-level logistics orchestration with automated scheduling and dock management.</p>
+        </div>
+        <div class="sol-card reveal-up" id="sol-cport">
+          <h4>Connected Port Logistics</h4>
+          <p>Port-to-destination fleet coordination with real-time container flow visibility.</p>
+        </div>
+        <div class="sol-card reveal-up" id="sol-mct">
+          <h4>Managed Control Tower</h4>
+          <p>Centralized command center for multi-site, multi-fleet operations monitoring.</p>
+        </div>
+        <div class="sol-card reveal-up" id="sol-vt">
+          <h4>Video Telematics</h4>
+          <p>AI video analytics for driver behavior monitoring, fatigue detection, and incident capture.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ CONTACT ═══════════════ -->
+  <section id="contact" class="section-dark">
+    <div class="grid-overlay"></div>
+    <div class="container">
+      <div class="section-label">Contact Us</div>
+      <h2 class="section-title">Reach out to learn more,<br />on <span class="accent">your terms.</span></h2>
+      <div class="contact-options">
+        <div class="contact-list">
+          <div class="contact-opt" id="contact-opt-1">
+            <span class="opt-num">1</span>
+            <span>Schedule a 30-minute meeting with a logistics expert</span>
+          </div>
+          <div class="contact-opt" id="contact-opt-2">
+            <span class="opt-num">2</span>
+            <span>Schedule a FOS™ Demo</span>
+          </div>
+          <div class="contact-opt" id="contact-opt-3">
+            <span class="opt-num">3</span>
+            <span>Arrange ROI consultation</span>
+          </div>
+          <div class="contact-opt" id="contact-opt-4">
+            <span class="opt-num">4</span>
+            <span>Set up a Proof of Value on site</span>
+          </div>
+          <div class="contact-opt" id="contact-opt-5">
+            <span class="opt-num">5</span>
+            <span>Something else</span>
+          </div>
+        </div>
+        <form class="contact-form" id="contact-form">
+          <div class="form-row">
+            <input type="text" placeholder="Full Name" id="form-name" required />
+            <input type="email" placeholder="Work Email" id="form-email" required />
+          </div>
+          <div class="form-row">
+            <input type="text" placeholder="Company" id="form-company" />
+            <input type="tel" placeholder="Phone" id="form-phone" />
+          </div>
+          <textarea placeholder="Tell us about your logistics challenge..." id="form-message" rows="4"></textarea>
+          <button type="submit" class="btn-primary" id="form-submit">Take charge of your fleet</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ FOOTER ═══════════════ -->
+  <footer id="site-footer" class="section-dark">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="#" class="footer-logo">
+            <span class="logo-fleet">FLEET</span><span class="logo-fox">FOX</span>
+          </a>
+          <p class="footer-tagline">A Product by <strong>Yaar IT Solutions</strong></p>
+          <p class="footer-recognized">AI-Native Connected Operating System for Logistics</p>
+        </div>
+        <div class="footer-col">
+          <h5>Solutions</h5>
+          <a href="#">xSwift</a>
+          <a href="#">eLogix</a>
+          <a href="#">Connected Plant Logistics</a>
+          <a href="#">Video Telematics</a>
+          <a href="#">Managed Control Tower</a>
+        </div>
+        <div class="footer-col">
+          <h5>Industries</h5>
+          <a href="#">Cement</a>
+          <a href="#">Oil &amp; Gas</a>
+          <a href="#">Automobile</a>
+          <a href="#">E-commerce</a>
+          <a href="#">FMCG</a>
+        </div>
+        <div class="footer-col">
+          <h5>Company</h5>
+          <a href="#">About Us</a>
+          <a href="#">Careers</a>
+          <a href="#">Partnership</a>
+          <a href="#">CSR</a>
+        </div>
+        <div class="footer-col">
+          <h5>Reach Us</h5>
+          <a href="mailto:info.fleetfox@gmail.com">info.fleetfox@gmail.com</a>
+          <a href="tel:+917240470011">+91 724 047 0011</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2025 Yaar IT Solutions. All Rights Reserved.</p>
+        <div class="footer-links">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

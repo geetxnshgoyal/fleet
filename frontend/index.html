@@ -1,480 +1,385 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>FleetFox Device Inventory</title>
-    <link rel="stylesheet" href="styles.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
-    <script src="app.js" defer></script>
-  </head>
-  <body>
-    <header>
-      <h1>FleetFox Device Inventory</h1>
-      <p>Compare incoming devices with installed units and spot remaining stock.</p>
-    </header>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FleetFox Vehicle Operating System</title>
+  <meta
+    name="description"
+    content="FleetFox is an AI-native vehicle tracking system for live visibility, AIS-140 compliance, mobile alerts, and fleet control from road to reporting."
+  >
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  >
+  <link rel="stylesheet" href="marketing.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-shell">
+      <a href="#top" class="logo-link" aria-label="Go to homepage">
+        <span class="logo-mark"></span>
+        <span class="logo-text">FleetFox</span>
+      </a>
 
-    <nav class="top-tabs">
-      <button type="button" class="tab-btn active" data-section-target="generate">Generate Certificate</button>
-      <button type="button" class="tab-btn" data-section-target="download">Download Certificates</button>
-      <button type="button" class="tab-btn" data-section-target="inventory">Device Inventory</button>
-    </nav>
+      <nav class="site-nav">
+        <a href="#system">System</a>
+        <a href="#markets">Markets</a>
+        <a href="#insights">Insights</a>
+        <a href="#resources">Resources</a>
+        <a href="#about">About</a>
+      </nav>
 
-    <main>
-      <section class="card" id="certificate-card" data-section="generate">
-        <div class="section-heading">
-          <div>
-            <h2>Fitment certificate</h2>
-            <p class="hint">Generate a QR-backed fitment certificate with the latest company details.</p>
+      <div class="header-actions">
+        <a href="#contact" class="header-cta"><span>CONTACT</span></a>
+        <button class="menu-toggle" type="button" aria-label="Toggle menu" aria-expanded="false">
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="mobile-menu" aria-hidden="true">
+      <a href="#system">System</a>
+      <a href="#markets">Markets</a>
+      <a href="#insights">Insights</a>
+      <a href="#resources">Resources</a>
+      <a href="#about">About</a>
+      <a href="certificate/">Partner Portal</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero-stack dark-section" id="top" data-hero-sequence>
+      <div class="path-overlay" aria-hidden="true">
+        <svg viewBox="0 0 1440 960" preserveAspectRatio="none">
+          <path d="M-120 620 L240 620 Q340 620 400 560 L560 400 Q610 350 690 350 L1080 350 Q1180 350 1240 290 L1520 20" />
+          <path d="M1320 -40 L1320 220 Q1320 300 1260 360 L1110 510 Q1060 560 980 560 L640 560 Q560 560 500 620 L280 840" />
+          <path d="M60 950 L420 590 Q470 540 540 540 L780 540 Q900 540 980 460 L1220 220" />
+        </svg>
+      </div>
+      <div class="hero-background-video" aria-hidden="true">
+        <video autoplay muted loop playsinline preload="auto">
+          <source src="assets/videos/hero-main.mp4" type="video/mp4">
+        </video>
+      </div>
+
+      <div class="hero-sticky">
+        <div class="hero-copy">
+          <p class="mono-label">AI-Native Fleet Telematics</p>
+          <div class="hero-lines">
+            <h1 class="hero-line is-active">We have reinvented the future of fleet visibility.</h1>
+            <h1 class="hero-line">Through the road.</h1>
+            <h1 class="hero-line">AI-native telematics that turns trips into connected operations.</h1>
+            <h1 class="hero-line">Moving logistics by making every vehicle visible.</h1>
           </div>
-          <div class="actions">
-            <button type="button" id="saveCertificate" class="primary">Submit</button>
-            <button type="button" id="fillSampleCertificate" class="secondary">Load sample</button>
-            <button type="button" id="printCertificate" class="secondary">Print</button>
-            <button type="button" id="generateCertificate" class="primary">Download PDF</button>
-          </div>
-        </div>
-
-        <form id="certificateForm" class="certificate-grid">
-          <label>
-            Owner name
-            <input id="ownerName" name="ownerName" placeholder="Owner" required />
-          </label>
-          <label>
-            Vehicle number
-            <input id="vehicleNumber" name="vehicleNumber" placeholder="Vehicle" required />
-          </label>
-          <label>
-            Engine number
-            <input id="engineNumber" name="engineNumber" placeholder="Engine" required />
-          </label>
-          <label>
-            Chassis number
-            <input id="chassisNumber" name="chassisNumber" placeholder="Chassis" required />
-          </label>
-          <label>
-            RTO district/city
-            <input id="rtoDistrict" name="rtoDistrict" placeholder="District or city" />
-          </label>
-          <label>
-            RTO state
-            <input id="rtoState" name="rtoState" placeholder="State" />
-          </label>
-          <label>
-            Device IMEI
-            <input id="deviceImei" name="deviceImei" placeholder="IMEI" />
-          </label>
-          <label>
-            Device model
-            <input id="deviceModel" name="deviceModel" placeholder="Model" />
-          </label>
-          <label>
-            Vehicle type
-            <input id="vehicleType" name="vehicleType" placeholder="Type of vehicle" />
-          </label>
-          <label>
-            Vehicle model
-            <input id="vehicleModel" name="vehicleModel" placeholder="Vehicle model" />
-          </label>
-          <label>
-            Manufacturing company
-            <input id="manufacturingCompany" name="manufacturingCompany" placeholder="Manufacturer" />
-          </label>
-          <label>
-            Vehicle manufacturing date
-            <input id="vehicleManufacturingDate" name="vehicleManufacturingDate" type="date" />
-          </label>
-          <label>
-            Registration date
-            <input id="registrationDate" name="registrationDate" type="date" />
-          </label>
-          <label>
-            Device installation date
-            <input id="installationDate" name="installationDate" type="date" />
-          </label>
-          <label>
-            Last fitness date
-            <input id="fitnessDate" name="fitnessDate" type="date" />
-          </label>
-          <label>
-            Fitment valid up to
-            <input id="fitmentValidUpto" name="fitmentValidUpto" type="date" />
-          </label>
-          <label>
-            Invoice number
-            <input id="invoiceNumber" name="invoiceNumber" placeholder="Invoice no." />
-          </label>
-          <label>
-            Invoice date
-            <input id="invoiceDate" name="invoiceDate" type="date" />
-          </label>
-          <label>
-            Number of SOS
-            <input id="numberOfSos" name="numberOfSos" type="number" min="0" placeholder="0" />
-          </label>
-          <label>
-            Esim validity
-            <input id="esimValidity" name="esimValidity" type="date" />
-          </label>
-          <label>
-            Vtld number
-            <input id="vtldNumber" name="vtldNumber" placeholder="Vtld" />
-          </label>
-          <label>
-            Vtld model
-            <input id="vtldModel" name="vtldModel" placeholder="Model" />
-          </label>
-          <label>
-            Operator 1
-            <input id="operator1" name="operator1" placeholder="Operator" />
-          </label>
-          <label>
-            Operator 2
-            <input id="operator2" name="operator2" placeholder="Operator" />
-          </label>
-          <label>
-            Esim 1
-            <input id="esim1" name="esim1" placeholder="Esim" />
-          </label>
-          <label>
-            Esim 2
-            <input id="esim2" name="esim2" placeholder="Esim" />
-          </label>
-          <label class="wide">
-            Customer name
-            <input id="customerName" name="customerName" placeholder="Customer" />
-          </label>
-          <label class="wide">
-            Customer address
-            <textarea id="customerAddress" name="customerAddress" rows="2" placeholder="Address"></textarea>
-          </label>
-          <label class="wide">
-            Dealer name
-            <input id="dealerName" name="dealerName" placeholder="Dealer" />
-          </label>
-          <label class="wide">
-            Dealer address
-            <textarea id="dealerAddress" name="dealerAddress" rows="2" placeholder="Address"></textarea>
-          </label>
-          <label class="wide">
-            Fitment image 1
-            <input id="fitmentImage1" name="fitmentImage1" type="file" accept="image/*" data-image-index="1" />
-          </label>
-          <label class="wide">
-            Fitment image 2
-            <input id="fitmentImage2" name="fitmentImage2" type="file" accept="image/*" data-image-index="2" />
-          </label>
-          <label class="wide">
-            Fitment image 3
-            <input id="fitmentImage3" name="fitmentImage3" type="file" accept="image/*" data-image-index="3" />
-          </label>
-        </form>
-
-        <p id="certificateStatus" class="status hidden">Ready to generate.</p>
-      </section>
-
-      <section class="card hidden" id="certificatePreviewCard" data-section="generate">
-        <h3>Certificate preview</h3>
-        <div id="certificatePreview" class="certificate-preview">
-          <div class="cert-page">
-            <div class="cert-header-row">
-              <div class="cert-company">
-                <h4>YAAR IT SOLUTIONS</h4>
-                <p>GSTIN : 08AGQPG4963Q1ZG</p>
-                <p>EMAIL : info.fleetfox@gmail.com</p>
-              </div>
-              <div class="cert-rto">
-                <p class="cert-rto-title">RTO Copy</p>
-                <p>WETRACK-140 GPS DEVICE</p>
-                <p>(AIS 140 COMPLIANT)</p>
-                <p>Installation/Fitment Certificate</p>
-              </div>
-              <div class="cert-qr" id="certificateQr"></div>
-            </div>
-
-            <div class="cert-meta-row">
-              <div class="cert-to">
-                <p class="strong">To,</p>
-                <p class="strong">The Regional Transport Officer,</p>
-                <p id="previewRtoAddress">—</p>
-              </div>
-              <div class="cert-fitment">
-                <p><span class="strong">Fitment Date :</span> <span id="previewFitmentDate">—</span></p>
-                <p><span class="strong">Fitment Valid Till :</span> <span id="previewFitmentValidTill">—</span></p>
-              </div>
-            </div>
-
-            <div class="cert-section">
-              <div class="cert-section-title">Vehicle Details</div>
-              <div class="cert-grid four">
-                <div class="cert-cell"><span class="label">Vehicle No :</span><span id="previewVehicleNo">—</span></div>
-                <div class="cert-cell"><span class="label">Vehicle Type :</span><span id="previewVehicleType">—</span></div>
-                <div class="cert-cell"><span class="label">Chasis No :</span><span id="previewChassis">—</span></div>
-                <div class="cert-cell"><span class="label">Engine No :</span><span id="previewEngine">—</span></div>
-                <div class="cert-cell"><span class="label">Mfg. Company :</span><span id="previewMfgCompany">—</span></div>
-                <div class="cert-cell"><span class="label">Reg. Date :</span><span id="previewRegDate">—</span></div>
-                <div class="cert-cell"><span class="label">Vehicle Model :</span><span id="previewVehicleModel">—</span></div>
-                <div class="cert-cell"><span class="label">Last fitness Date :</span><span id="previewFitnessDate">—</span></div>
-                <div class="cert-cell"><span class="label">Date of mfg. Year :</span><span id="previewMfgYear">—</span></div>
-              </div>
-            </div>
-
-            <div class="cert-section two-col">
-              <div class="cert-section-title">Vehicle Owner Details</div>
-              <div class="cert-row-line">
-                <div><span class="label">Owner Name :</span><span id="previewOwnerName">—</span></div>
-                <div><span class="label">Owner Address :</span><span id="previewOwnerAddress">—</span></div>
-              </div>
-            </div>
-
-            <div class="cert-section">
-              <div class="cert-section-title">Dealer Details</div>
-              <div class="cert-grid three">
-                <div class="cert-cell"><span class="label">Dealer Name :</span><span id="previewDealerName">—</span></div>
-                <div class="cert-cell"><span class="label">Dealer Address :</span><span id="previewDealerAddress">—</span></div>
-                <div class="cert-cell"><span class="label">Sim 1 :</span><span id="previewSim1">—</span></div>
-                <div class="cert-cell"><span class="label">Sim 2 :</span><span id="previewSim2">—</span></div>
-              </div>
-            </div>
-
-            <div class="cert-section">
-              <div class="cert-section-title">VTS Details</div>
-              <div class="cert-grid four">
-                <div class="cert-cell"><span class="label">VTS Model :</span><span id="previewVtsModel">—</span></div>
-                <div class="cert-cell"><span class="label">Device Imei :</span><span id="previewDeviceImei">—</span></div>
-                <div class="cert-cell"><span class="label">Unique Id :</span><span id="previewUniqueId">—</span></div>
-                <div class="cert-cell"><span class="label">ICCID No :</span><span id="previewIccid">—</span></div>
-                <div class="cert-cell"><span class="label">Invoice date :</span><span id="previewInvoiceDate">—</span></div>
-                <div class="cert-cell"><span class="label">Invoice No :</span><span id="previewInvoiceNo">—</span></div>
-                <div class="cert-cell"><span class="label">Number Of Sos :</span><span id="previewSos">—</span></div>
-                <div class="cert-cell"><span class="label">Fitment Valid Upto :</span><span id="previewFitmentValid">—</span></div>
-              </div>
-            </div>
-
-            <div class="cert-section">
-              <div class="cert-section-title">Fitment Images</div>
-              <div class="cert-images-row">
-                <div class="cert-image-box">
-                  <img id="previewFitmentImage1" class="cert-image" alt="Fitment image 1" />
-                </div>
-                <div class="cert-image-box">
-                  <img id="previewFitmentImage2" class="cert-image" alt="Fitment image 2" />
-                </div>
-                <div class="cert-image-box">
-                  <img id="previewFitmentImage3" class="cert-image" alt="Fitment image 3" />
-                </div>
-              </div>
-            </div>
-
-            <div class="cert-footer">
-              <div>
-                <p class="label">Authorized Dealer:</p>
-                <p>Department Of Transport : (Seal & Sign)</p>
-              </div>
-              <div class="footer-sign">
-                <p class="label">Checked & Verified</p>
-                <p>Signature of MVI/RTO :</p>
-                <p>YAAR IT SOLUTIONS</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="cert-page page-break">
-            <p class="cert-psr-title">(PRODUCT SATISFACTION REPORT BY VEHICLE OWNER)</p>
-            <ol class="cert-psr-list">
-              <li>This is to acknowledge and confirm that we have got our vehicle bearing registration No.. fitted with GPS Device (Model No: VTD - 10, AIS 140 Compliant) manufactured by YAAR IT SOLUTIONS.</li>
-              <li>I have read the terms and conditions given overleaf and confirm that this Fitment Certificate is being issued on the basis of my understanding and acceptance to them. I also understand that all rights and obligations of parties will be governed by the aforesaid terms and conditions only.</li>
-            </ol>
-
-            <div class="cert-do-dont">
-              <div>
-                <p class="strong">Do'</p>
-                <ol>
-                  <li>The GPS unit operates on 12-24 V DC of the vehicle battery.</li>
-                  <li>Please protect the GPS unit from any unwarranted tampering, water and damages.</li>
-                  <li>During servicing of vehicles ensure that power connection are disconnected from battery.</li>
-                </ol>
-              </div>
-              <div>
-                <p class="strong">Don'ts</p>
-                <ol>
-                  <li>Please do not cover GPS one metallic box or sheet which shall disturb the functioning of the GPS unit.</li>
-                  <li>Do not alter wire and tamper device.</li>
-                  <li>System should not be located at places of direct heat sources such as engine cover etc.</li>
-                </ol>
-              </div>
-            </div>
-
-            <div class="cert-ack">
-              <div><span class="label">Date:</span> <span id="previewAckDate">—</span></div>
-              <div><span class="label">Name of the Customer:</span> <span id="previewAckCustomer">—</span></div>
-              <div><span class="label">Time:</span> <span id="previewAckTime">—</span></div>
-              <div><span class="label">Driving License Number:</span> <span id="previewAckDl">—</span></div>
-              <div><span class="label">Place:</span> <span id="previewAckPlace">—</span></div>
-              <div><span class="label">Mobile Number:</span> <span id="previewAckMobile">—</span></div>
-            </div>
-
-            <p class="cert-thanks">Thanking You</p>
-            <p class="cert-thanks">Signature</p>
-            <p class="cert-signatory">For YAAR IT SOLUTIONS</p>
-            <p class="cert-signature-line">Authorised Signatory</p>
+          <p class="hero-subtext">
+            FleetFox is positioned as a unified vehicle tracking system for live fleet and asset visibility,
+            route and trip optimization, video telematics, ETA control, dispatch oversight, fuel intelligence,
+            and compliance-ready operations.
+          </p>
+          <div class="hero-buttons">
+            <a href="#contact" class="button button-light">CONTACT</a>
+            <a href="#system" class="button button-outline">EXPLORE SYSTEM</a>
           </div>
         </div>
-      </section>
 
-      <section class="card hidden" id="downloadCertificatesCard" data-section="download">
-        <div class="section-heading">
-          <div>
-            <h2>Download Certificates</h2>
-            <p class="hint">Search past certificates and export them just like the reference UI.</p>
-          </div>
-          <div class="actions download-actions">
-            <button id="downloadCopy" type="button" class="secondary">Copy</button>
-            <button id="downloadExcel" type="button" class="secondary">Excel</button>
-            <button id="downloadCsv" type="button" class="secondary">CSV</button>
-            <button id="downloadPdf" type="button" class="secondary">PDF</button>
-            <button id="downloadPrint" type="button" class="primary">Print</button>
-            <button id="downloadClear" type="button" class="secondary">Clear saved</button>
-          </div>
+        <div class="hero-media">
+          <article class="hero-card hero-card-main">
+            <span class="mono-label">Fleet & asset visibility</span>
+            <strong>RJ31 GA 1234</strong>
+            <p>Live location, deviation alerts, stoppage insights, and trip replay for every active vehicle.</p>
+          </article>
+          <article class="hero-card hero-card-dashboard">
+            <video autoplay muted loop playsinline preload="auto">
+              <source src="assets/videos/dashboard.mp4" type="video/mp4">
+            </video>
+          </article>
+          <article class="hero-card hero-card-mobile">
+            <video autoplay muted loop playsinline preload="auto">
+              <source src="assets/videos/mobile-pins.mp4" type="video/mp4">
+            </video>
+          </article>
+          <article class="hero-card hero-card-signal">
+            <span class="mono-label">Control tower oversight</span>
+            <strong>ETA, alerts, and intervention</strong>
+            <p>Centralized monitoring for trip exceptions, delays, route deviations, and driver response.</p>
+          </article>
         </div>
-        <div class="table-toolbar">
-          <label class="download-search">
-            Search:
-            <input type="search" id="downloadSearch" placeholder="Search certificates" />
-          </label>
-        </div>
-        <div class="table-wrapper">
-          <table id="downloadTable">
-            <thead>
-              <tr>
-                <th>S.No</th>
-                <th>Customer Name</th>
-                <th>Device Imei</th>
-                <th>Iccid Number</th>
-                <th>Created Date</th>
-                <th>Created By</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-        <p id="downloadCount" class="hint"></p>
-      </section>
+      </div>
+    </section>
 
-      <section class="card" data-section="inventory">
-        <h2>1. Upload the latest spreadsheets</h2>
-        <p class="hint">
-          Accepts the original <code>incoming.xlsx</code> file and the exported
-          <code>installed.xls</code> file. Nothing leaves your browser.
+    <section class="notch-section light-section intro-section" id="about">
+      <div class="section-shell intro-grid">
+        <p class="intro-kicker">
+          Real-time visibility. Safer movement. Faster decisions.
         </p>
-        <div class="upload-grid">
-          <label class="upload-field">
-            Incoming devices (.xlsx)
-            <input id="incomingFile" type="file" accept=".xlsx" />
+        <p class="intro-body">
+          Axestrack’s vehicle-tracking language centers on end-to-end fleet intelligence:
+          live vehicle and asset visibility, safe driving analytics, route optimization,
+          yard and stockyard coordination, digital checkpoints, video telematics, and managed control tower support.
+          This page now follows that content direction for a road-focused tracking product.
+        </p>
+      </div>
+    </section>
+
+    <section class="light-section numbered-section" id="system">
+      <div class="section-shell">
+        <div class="section-heading">
+          <p class="mono-label mono-label-dark">System</p>
+          <h2>The operating standard for fleet visibility, trip control, safety, and compliance.</h2>
+        </div>
+
+        <div class="number-grid">
+          <article class="number-item">
+            <span>01</span>
+            <p>Live vehicle and asset visibility with movement snapshots, route history, and instant deviation alerts.</p>
+          </article>
+          <article class="number-item">
+            <span>02</span>
+            <p>Safe driving and damage-free movement through speed, braking, cornering, and handling monitoring.</p>
+          </article>
+          <article class="number-item">
+            <span>03</span>
+            <p>Trip planning, ETA accuracy, and route optimization with live exception monitoring.</p>
+          </article>
+          <article class="number-item">
+            <span>04</span>
+            <p>Fuel expense intelligence to control fuel costs and make smarter purchasing decisions.</p>
+          </article>
+          <article class="number-item">
+            <span>05</span>
+            <p>Video telematics with DMS, ADAS, and fatigue detection for lower safety risk and stronger evidence.</p>
+          </article>
+          <article class="number-item">
+            <span>06</span>
+            <p>Managed control tower support with centralized dispatch, alerts handling, analytics, and daily reporting.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="stack-section dark-section" id="insights" data-stack-section>
+      <div class="path-overlay path-overlay-soft" aria-hidden="true">
+        <svg viewBox="0 0 1440 1200" preserveAspectRatio="none">
+          <path d="M200 0 V220 Q200 300 260 360 L420 520 Q470 570 550 570 H890 Q990 570 1050 630 L1280 860" />
+          <path d="M0 860 H320 Q420 860 480 800 L650 630 Q710 570 800 570 H1180 Q1280 570 1360 490 L1500 350" />
+        </svg>
+      </div>
+
+      <div class="stack-sticky">
+        <div class="stack-copy">
+          <p class="mono-label">Benefits</p>
+          <div class="stack-step is-active" data-stack-copy>
+            <span class="step-pretitle">Benefit 01</span>
+            <h2>Maximum, real-time visibility across fleet and trip operations.</h2>
+            <p>
+              Axestrack positions live tracking, movement status, trip replay, ETA monitoring,
+              and centralized exception handling as the base layer for connected logistics operations.
+            </p>
+          </div>
+          <div class="stack-step" data-stack-copy>
+            <span class="step-pretitle">Benefit 02</span>
+            <h2>Easy, scalable operation with low operational friction.</h2>
+            <p>
+              The content direction emphasizes deployable software, pre-integrated devices,
+              seamless dispatch workflows, and support teams that help operators run leaner without adding complexity.
+            </p>
+          </div>
+          <div class="stack-step" data-stack-copy>
+            <span class="step-pretitle">Benefit 03</span>
+            <h2>Rapid, repeatable ROI through control, safety, and utilization.</h2>
+            <p>
+              Axestrack highlights lower operating costs, reduced liability, streamlined compliance,
+              and stronger trip margins through safer driving, fuel optimization, and improved fleet utilization.
+            </p>
+          </div>
+        </div>
+
+        <div class="stack-media">
+          <article class="media-panel is-active" data-stack-media>
+            <div class="media-frame wide-frame">
+              <video autoplay muted loop playsinline preload="auto">
+                <source src="assets/videos/dashboard.mp4" type="video/mp4">
+              </video>
+            </div>
+            <div class="media-caption">Unified dashboard for live trips, ETA visibility, dispatch, and exception reporting.</div>
+          </article>
+
+          <article class="media-panel" data-stack-media>
+            <div class="media-frame tall-frame">
+              <video autoplay muted loop playsinline preload="auto">
+                <source src="assets/videos/mobile-pins.mp4" type="video/mp4">
+              </video>
+            </div>
+            <div class="media-caption">Mobile-first monitoring with live location, route events, and operator alerts.</div>
+          </article>
+
+          <article class="media-panel" data-stack-media>
+            <div class="media-frame wide-frame">
+              <video autoplay muted loop playsinline preload="auto">
+                <source src="assets/videos/operations.mp4" type="video/mp4">
+              </video>
+            </div>
+            <div class="media-caption">Fuel, safety, dispatch, and performance intelligence presented through motion media.</div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="notch-section light-section operator-section" id="markets">
+      <div class="section-shell">
+        <div class="section-heading">
+          <p class="mono-label mono-label-dark">Markets</p>
+          <h2>Built for operators who need precision, flow, and accountability across vehicle movement.</h2>
+        </div>
+
+        <div class="logo-strip">
+          <span>Automobile logistics</span>
+          <span>Cement logistics</span>
+          <span>Retail and FMCG fleets</span>
+          <span>Cold chain transport</span>
+          <span>Port and yard operations</span>
+        </div>
+
+        <div class="quote-block">
+          <blockquote>
+            “Track every movement, prevent delays, and move vehicles and components with precision.”
+          </blockquote>
+          <p>Adapted from Axestrack’s automobile logistics positioning</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="light-section resource-section" id="resources">
+      <div class="section-shell">
+        <div class="section-heading section-heading-split">
+          <p class="mono-label mono-label-dark">Resources</p>
+          <h2>Vehicle tracking content shaped around Axestrack’s logistics and telematics offerings.</h2>
+        </div>
+
+        <div class="resource-grid">
+          <article class="resource-card">Live vehicle and asset visibility across multi-stage movement networks</article>
+          <article class="resource-card">Intelligent route and trip optimization with AI-based route repair</article>
+          <article class="resource-card">Forward and reverse trip planning for stronger utilization</article>
+          <article class="resource-card">Capacity and backhaul visibility to reduce empty runs</article>
+          <article class="resource-card">AI-based unloading detection and digital delivery validation</article>
+          <article class="resource-card">Theft control with geofenced zones, checkpoints, smart locks, and video feeds</article>
+        </div>
+      </div>
+    </section>
+
+    <section class="dark-section process-section">
+      <div class="path-overlay" aria-hidden="true">
+        <svg viewBox="0 0 1440 900" preserveAspectRatio="none">
+          <path d="M-40 680 H260 Q340 680 400 620 L610 410 Q680 340 760 340 H1130 Q1220 340 1280 280 L1480 80" />
+        </svg>
+      </div>
+
+      <div class="section-shell">
+        <div class="section-heading">
+          <p class="mono-label">How it works</p>
+          <h2>Fleet intelligence that transforms logistics from tracking to intervention.</h2>
+        </div>
+
+        <div class="process-grid">
+          <article class="process-card">
+            <span>01</span>
+            <h3>Track</h3>
+            <p>Capture live vehicle location, trip status, route adherence, and movement history.</p>
+          </article>
+          <article class="process-card">
+            <span>02</span>
+            <h3>Analyze</h3>
+            <p>Turn driving behavior, ETAs, halts, fuel usage, and exceptions into real-time insight.</p>
+          </article>
+          <article class="process-card">
+            <span>03</span>
+            <h3>Intervene</h3>
+            <p>Respond through dispatch, alerts handling, video evidence, and control tower oversight.</p>
+          </article>
+          <article class="process-card">
+            <span>04</span>
+            <h3>Optimize</h3>
+            <p>Improve cost, utilization, compliance, and safety through repeatable operational decisions.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="notch-section light-section contact-section" id="contact">
+      <div class="section-shell contact-grid">
+        <div class="contact-copy">
+          <p class="mono-label mono-label-dark">Contact us</p>
+          <h2>Reach out to learn more about FleetFox, on your terms.</h2>
+          <ol class="contact-list">
+            <li>Schedule a 30-minute meeting about fleet telematics</li>
+            <li>Book a live vehicle tracking and dispatch demo</li>
+            <li>Discuss video telematics, DMS, and ADAS</li>
+            <li>Review route optimization, ETA, and control tower use cases</li>
+            <li>Something else</li>
+          </ol>
+          <div class="contact-meta">
+            <p>Hanumangarh District, Rajasthan</p>
+            <p>info.fleetfox@gmail.com</p>
+          </div>
+        </div>
+
+        <form class="contact-form">
+          <label>
+            Full Name
+            <input type="text" placeholder="John Doe" required>
           </label>
-          <label class="upload-field">
-            Installed devices (.xls)
-            <input id="installedFile" type="file" accept=".xls,.xlsx,.csv,.html" />
+          <label>
+            Role or position
+            <input type="text" placeholder="Fleet manager">
           </label>
-        </div>
-        <p id="status" class="status">Waiting for files…</p>
-      </section>
+          <label>
+            Phone number
+            <input type="tel" placeholder="+91 98XXXXXXXX">
+          </label>
+          <label>
+            Email
+            <input type="email" placeholder="you@example.com" required>
+          </label>
+          <label>
+            Company name
+            <input type="text" placeholder="Logistics or transport company" required>
+          </label>
+          <label>
+            How can we help?
+            <select required>
+              <option value="" disabled selected>Select option</option>
+              <option value="tracking">Live fleet and asset visibility</option>
+              <option value="demo">Dispatch and control tower demo</option>
+              <option value="safety">Video telematics and safety solution</option>
+              <option value="fuel">Fuel and route optimization use case</option>
+              <option value="other">Something else</option>
+            </select>
+          </label>
+          <button type="submit" class="form-submit">SUBMIT</button>
+          <p class="form-note">This demo form stays front-end only until it is connected to your backend.</p>
+        </form>
+      </div>
+    </section>
+  </main>
 
-      <section class="card">
-        <h2>2. Choose what to inspect</h2>
-        <div class="actions">
-          <button type="button" class="view-btn" data-target="incoming">Incoming list</button>
-          <button type="button" class="view-btn" data-target="installed">Installed summary</button>
-          <button type="button" class="view-btn primary" data-target="stock">Devices still in stock</button>
-          <button type="button" class="view-btn" data-target="history">Saved stock reports</button>
-          <button type="button" id="downloadStock" class="secondary" disabled>
-            Download stock as CSV
-          </button>
-        </div>
-      </section>
+  <footer class="site-footer">
+    <div class="footer-shell">
+      <p class="footer-title">FleetFox</p>
+      <div class="footer-links">
+        <a href="#system">System</a>
+        <a href="#markets">Markets</a>
+        <a href="#insights">Benefits</a>
+        <a href="#contact">Contact</a>
+        <a href="certificate/">Partner Portal</a>
+      </div>
+    </div>
+  </footer>
 
-      <section id="view-incoming" class="card data-view hidden" data-section="inventory">
-        <h2>Incoming devices</h2>
-        <div class="meta">
-          <div class="meta-info">
-            <span id="incomingCount">0 devices</span>
-          </div>
-          <input
-            type="search"
-            class="table-filter"
-            data-target="incoming"
-            placeholder="Search by IMEI, SIM, or status"
-          />
-        </div>
-        <div class="table-wrapper">
-          <table id="incomingTable"></table>
-        </div>
-      </section>
-
-      <section id="view-installed" class="card data-view hidden" data-section="inventory">
-        <h2>Installed devices</h2>
-        <div class="meta">
-          <div class="meta-info">
-            <span id="installedCount">0 devices</span>
-            <small>Showing a subset of columns for clarity.</small>
-          </div>
-          <input
-            type="search"
-            class="table-filter"
-            data-target="installed"
-            placeholder="Search by IMEI, vehicle, or device"
-          />
-        </div>
-        <div class="table-wrapper">
-          <table id="installedTable"></table>
-        </div>
-      </section>
-
-      <section id="view-stock" class="card data-view hidden" data-section="inventory">
-        <h2>Devices still in stock</h2>
-        <div class="meta">
-          <div class="meta-info">
-            <span id="stockCount">0 devices</span>
-          </div>
-          <input
-            type="search"
-            class="table-filter"
-            data-target="stock"
-            placeholder="Filter stock list"
-          />
-        </div>
-        <div class="table-wrapper">
-          <table id="stockTable"></table>
-        </div>
-      </section>
-
-      <section id="view-history" class="card data-view hidden" data-section="inventory">
-        <h2>Saved stock reports</h2>
-        <div class="meta">
-          <div class="meta-info">
-            <span id="historyCount">No saved reports</span>
-            <small>Snapshots stay in this browser until you clear them.</small>
-          </div>
-          <button type="button" id="clearHistory" class="secondary">Clear saved reports</button>
-        </div>
-        <div id="historyList" class="history-list"></div>
-        <div id="historyTableWrapper" class="history-table hidden">
-          <p id="historyTitle" class="history-title"></p>
-          <div class="table-wrapper">
-            <table id="historyTable"></table>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <footer>
-      <p>
-        Built for FleetFox. Data is processed locally within your browser – refresh the page to clear it.
-      </p>
-    </footer>
-  </body>
+  <script src="marketing.js"></script>
+</body>
 </html>
