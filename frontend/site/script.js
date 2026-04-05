@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // 4. Replace the IDs below
   const EMAILJS_PUBLIC_KEY = 'I6Kar3pzmlameEIHh';     // Dashboard > Account > Public Key
   const EMAILJS_SERVICE_ID = 'service_zz2uc41';     // Dashboard > Email Services
-  const EMAILJS_TEMPLATE_ID = 'template_dx1mzaq';   // Dashboard > Email Templates
+  const EMAILJS_TEMPLATE_ID = 'template_1xqidme';   // Dashboard > Email Templates
 
   if (typeof emailjs !== 'undefined') {
     emailjs.init(EMAILJS_PUBLIC_KEY);
