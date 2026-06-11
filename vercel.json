@@ -1,5 +1,5 @@
 {
-  "rewrites": [
+  "redirects": [
     {
       "source": "/",
       "has": [
@@ -8,7 +8,8 @@
           "value": "securedfox.fleetfox.co.in"
         }
       ],
-      "destination": "/frontend/site/securedfox.html"
+      "destination": "/frontend/site/securedfox.html",
+      "permanent": false
     },
     {
       "source": "/index.html",
@@ -18,7 +19,8 @@
           "value": "securedfox.fleetfox.co.in"
         }
       ],
-      "destination": "/frontend/site/securedfox.html"
+      "destination": "/frontend/site/securedfox.html",
+      "permanent": false
     }
   ]
 }
