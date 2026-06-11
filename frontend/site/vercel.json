@@ -1,0 +1,24 @@
+{
+  "rewrites": [
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "securedfox.fleetfox.co.in"
+        }
+      ],
+      "destination": "/securedfox.html"
+    },
+    {
+      "source": "/index.html",
+      "has": [
+        {
+          "type": "host",
+          "value": "securedfox.fleetfox.co.in"
+        }
+      ],
+      "destination": "/securedfox.html"
+    }
+  ]
+}
