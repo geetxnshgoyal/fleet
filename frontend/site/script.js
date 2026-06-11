@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
             `Phone: ${templateParams.phone}\n\n` +
             `Message:\n${templateParams.message}`
           );
-          window.open(`mailto:info.fleetfox@gmail.com?subject=${subject}&body=${body}`, '_blank');
+          window.open(`mailto:support@fleetfox.co.in?subject=${subject}&body=${body}`, '_blank');
           btn.textContent = 'Message sent ✓';
           btn.style.background = '#CCFF00';
           btn.style.color = '#0A0C0B';
