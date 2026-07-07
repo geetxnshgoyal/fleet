@@ -22,5 +22,19 @@
       "destination": "/securedfox.html",
       "permanent": false
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/rcscan",
+      "destination": "/rc-scanner/index.html"
+    },
+    {
+      "source": "/rcscan/",
+      "destination": "/rc-scanner/index.html"
+    },
+    {
+      "source": "/rcscan/:path*",
+      "destination": "/rc-scanner/:path*"
+    }
   ]
 }
