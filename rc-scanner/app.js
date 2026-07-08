@@ -148,13 +148,13 @@ Rules:
   function setupApiKey() {
     // Check config.js first, then fallback to localStorage
     let configKey = '';
-    if (typeof RC_SCANNER_CONFIG !== 'undefined' && RC_SCANNER_CONFIG.GEMINI_API_KEY) {
-      configKey = RC_SCANNER_CONFIG.GEMINI_API_KEY;
+    if (typeof RC_SCANNER_CONFIG !== 'undefined' && RC_SCANNER_CONFIG.OCR_SPACE_API_KEY) {
+      configKey = RC_SCANNER_CONFIG.OCR_SPACE_API_KEY;
     }
 
     let saved = '';
     try {
-      saved = localStorage.getItem('rc_scanner_gemini_key') || '';
+      saved = localStorage.getItem('rc_scanner_ocr_key') || '';
     } catch (e) {
       console.warn('localStorage is blocked by browser settings:', e);
     }
@@ -168,9 +168,9 @@ Rules:
     // Save on change
     els.apiKeyInput.addEventListener('input', () => {
       const key = getApiKey();
-      if (key.length > 10) {
+      if (key.length > 5) {
         try {
-          localStorage.setItem('rc_scanner_gemini_key', key);
+          localStorage.setItem('rc_scanner_ocr_key', key);
         } catch (e) {
           console.warn('Failed to save to localStorage:', e);
         }
@@ -191,10 +191,10 @@ Rules:
     const dot = els.modeIndicator.querySelector('.mode-dot');
     if (hasKey) {
       dot.className = 'mode-dot online';
-      els.modeText.textContent = 'Gemini AI ready — high-accuracy extraction enabled';
+      els.modeText.textContent = 'OCR.space ready — high-accuracy extraction enabled';
     } else {
       dot.className = 'mode-dot offline';
-      els.modeText.textContent = 'No API key — enter key above for AI-powered extraction';
+      els.modeText.textContent = 'No API key — enter key above for OCR.space extraction';
     }
   }
 
