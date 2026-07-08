@@ -64,7 +64,13 @@ body {
   padding: 0 24px;
 }
 
-/* ── HEADER ── */
+#site-header {
+  position: static !important;
+  transform: none !important;
+  width: 100% !important;
+  max-width: none !important;
+}
+
 #app-header {
   position: sticky;
   top: 0;
