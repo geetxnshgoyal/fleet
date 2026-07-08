@@ -21,13 +21,14 @@
       ],
       "destination": "/frontend/site/securedfox.html",
       "permanent": false
+    },
+    {
+      "source": "/rcscan",
+      "destination": "/rcscan/",
+      "permanent": true
     }
   ],
   "rewrites": [
-    {
-      "source": "/rcscan",
-      "destination": "/rc-scanner/index.html"
-    },
     {
       "source": "/rcscan/",
       "destination": "/rc-scanner/index.html"
