@@ -16,11 +16,11 @@
 
   --text-primary: #e2e8f0;
   --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  --text-muted: #94a3b8;
   --text-dark: #1e293b;
 
   --accent-cyan: #00d4ff;
-  --accent-cyan-dim: rgba(0, 212, 255, 0.15);
+  --accent-cyan-dim: rgba(0, 212, 255, 0.25);
   --accent-violet: #7c3aed;
   --accent-gradient: linear-gradient(135deg, #00d4ff, #7c3aed);
   --accent-gradient-h: linear-gradient(135deg, #00eaff, #9f5afd);
