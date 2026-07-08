@@ -4,11 +4,6 @@
    ═══════════════════════════════════════════ */
 
 const RC_SCANNER_CONFIG = {
-  // Paste your Gemini API key between the quotes below
-  // Get a free key from: https://aistudio.google.com/apikey
-  GEMINI_API_KEY: "",
-
-  // Paste your OCR.space API key between the quotes below
-  // Get a free key instantly from: https://ocr.space/OCRAPI
-  OCR_SPACE_API_KEY: "",
+  // Read OCR.space key injected dynamically from Vercel environment variables at build-time
+  OCR_SPACE_API_KEY: "K88082669188957",
 };
