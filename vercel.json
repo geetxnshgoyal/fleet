@@ -26,6 +26,11 @@
       "source": "/rcscan",
       "destination": "/rcscan/",
       "permanent": true
+    },
+    {
+      "source": "/merge",
+      "destination": "/merge/",
+      "permanent": true
     }
   ],
   "rewrites": [
@@ -36,6 +41,14 @@
     {
       "source": "/rcscan/:path*",
       "destination": "/rc-scanner/:path*"
+    },
+    {
+      "source": "/merge/",
+      "destination": "/sheet-merger/index.html"
+    },
+    {
+      "source": "/merge/:path*",
+      "destination": "/sheet-merger/:path*"
     }
   ]
 }
